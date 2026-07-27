@@ -115,12 +115,12 @@ http://localhost:3000
 
 ## Environment Variables
 
-Create a `.env` file:
+Create a `.env` file in the project root and add the following variables:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/marketplace"
+DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>"
 PORT=3000
-JWT_SECRET=mySuperSecretKey123
+JWT_SECRET=your_jwt_secret_key
 ```
 
 ---
@@ -140,8 +140,8 @@ Sample Request
 ```json
 {
   "companyName": "TechNova",
-  "companyEmail": "admin@technova.com",
-  "password": "Password123",
+  "companyEmail": "admin@example.com",
+  "password": "SecurePassword123",
   "phone": "9876543210",
   "website": "https://technova.com",
   "industry": "Software",
@@ -163,7 +163,7 @@ Sample Request
 Example
 
 ```
-GET /api/company/b0e0f807-ccbd-4fe7-9441-dbb6e19e8741
+GET /api/company/b0e0f807-ccbd-4fe7-9441-dbb6e19e7925
 ```
 
 ---
