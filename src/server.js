@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 require("dotenv").config();
+const jobRoutes = require("./routes/job.routes");
+
 
 const companyRoutes = require("./routes/company.routes");
 const app = express();
@@ -11,6 +13,7 @@ app.use(helmet());
 app.use(express.json());
 
 app.use("/api/company", companyRoutes);
+app.use("/api/jobs", jobRoutes);
 
 app.get("/", (req, res) => {
   res.json({

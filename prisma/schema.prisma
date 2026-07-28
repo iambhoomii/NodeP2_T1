@@ -33,11 +33,40 @@ model Company {
   logo        String?
 
   users User[]
-
+  jobs Job[]
   kyc CompanyKYC?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Job {
+  id             String   @id @default(uuid())
+  title          String
+  description    String
+  location       String?
+  experience     String?
+  assessmentLink String   @unique
+
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  thresholds SkillThreshold[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SkillThreshold {
+  id        String @id @default(uuid())
+
+  skill     String
+  threshold Int
+
+  jobId String
+  job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 model CompanyKYC {

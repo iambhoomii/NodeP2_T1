@@ -1,40 +1,45 @@
-# Backend Marketplace - Company Onboarding
+# Backend Marketplace - Company Onboarding & Job Posting
 
 ## Overview
 
-This project implements the backend foundation for a marketplace platform where companies can register, create their profiles, and prepare for future marketplace operations.
+This project implements the backend foundation for a marketplace platform where companies can register, create profiles, and publish jobs with skill-based eligibility thresholds.
 
-The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM, with JWT-based authentication and Zod validation.
+The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM with JWT-based authentication, password hashing, Zod validation, and a threshold rules engine for job assessments.
 
 ---
 
 ## Features
 
-- Company Registration API
-- Company Profile Creation
-- Company Profile Retrieval
-- JWT Authentication
-- Password Hashing using bcrypt
-- Request Validation using Zod
-- PostgreSQL Database
-- Prisma ORM & Migrations
-- Dockerized PostgreSQL
+* Company Registration API
+* Company Profile Creation
+* Company Profile Retrieval
+* JWT Authentication
+* Password Hashing using bcrypt
+* Request Validation using Zod
+* Job Posting API
+* Skill Threshold Management
+* Threshold Rules Engine
+* Per-job Assessment Link Generation
+* PostgreSQL Database
+* Prisma ORM & Migrations
+* Dockerized PostgreSQL
+* Secure API development using Helmet and CORS
 
 ---
 
 ## Tech Stack
 
-- Node.js
-- Express.js
-- PostgreSQL
-- Prisma ORM
-- Docker
-- JWT
-- bcrypt
-- Zod
-- dotenv
-- Helmet
-- CORS
+* Node.js
+* Express.js
+* PostgreSQL
+* Prisma ORM
+* Docker
+* JWT
+* bcrypt
+* Zod
+* dotenv
+* Helmet
+* CORS
 
 ---
 
@@ -49,13 +54,20 @@ Task1_P2/
 │
 ├── src/
 │   ├── controllers/
-│   │   └── company.controller.js
+│   │   ├── company.controller.js
+│   │   └── job.controller.js
+│   │
 │   ├── routes/
-│   │   └── company.routes.js
+│   │   ├── company.routes.js
+│   │   └── job.routes.js
+│   │
 │   ├── utils/
 │   │   └── prisma.js
+│   │
 │   ├── validators/
-│   │   └── company.validator.js
+│   │   ├── company.validator.js
+│   │   └── job.validation.js
+│   │
 │   └── server.js
 │
 ├── .env
@@ -115,17 +127,19 @@ http://localhost:3000
 
 ## Environment Variables
 
-Create a `.env` file:
+Create a `.env` file in the project root:
 
 ```env
-DATABASE_URL="postgresql://postgres:password@localhost:5432/marketplace"
+DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>"
 PORT=3000
-JWT_SECRET=mySuperSecretKey123
+JWT_SECRET=your_jwt_secret_key
 ```
 
 ---
 
-## API Endpoints
+# API Endpoints
+
+## Company APIs
 
 ### Company Signup
 
@@ -135,13 +149,13 @@ JWT_SECRET=mySuperSecretKey123
 /api/company/signup
 ```
 
-Sample Request
+Sample Request:
 
 ```json
 {
   "companyName": "TechNova",
-  "companyEmail": "admin@technova.com",
-  "password": "Password123",
+  "companyEmail": "admin@example.com",
+  "password": "SecurePassword123",
   "phone": "9876543210",
   "website": "https://technova.com",
   "industry": "Software",
@@ -160,7 +174,7 @@ Sample Request
 /api/company/:id
 ```
 
-Example
+Example:
 
 ```
 GET /api/company/b0e0f807-ccbd-4fe7-9441-dbb6e19e8741
@@ -168,83 +182,176 @@ GET /api/company/b0e0f807-ccbd-4fe7-9441-dbb6e19e8741
 
 ---
 
-## Validation
+# Job APIs
+
+## Create Job
+
+**POST**
+
+```
+/api/jobs
+```
+
+Sample Request:
+
+```json
+{
+  "companyId": "company_uuid",
+  "title": "Frontend Developer",
+  "description": "React developer with Node.js knowledge",
+  "location": "Bangalore",
+  "experience": "2 Years",
+  "thresholds": [
+    {
+      "skill": "React",
+      "threshold": 80
+    },
+    {
+      "skill": "JavaScript",
+      "threshold": 75
+    },
+    {
+      "skill": "Node.js",
+      "threshold": 70
+    }
+  ]
+}
+```
+
+---
+
+## Get Job Details
+
+**GET**
+
+```
+/api/jobs/:id
+```
+
+Returns:
+
+* Job details
+* Company information
+* Skill thresholds
+* Generated assessment link
+
+---
+
+# Validation
 
 Company registration validates:
 
-- Company Name
-- Company Email
-- Password
-- Phone Number
-- Website
-- Industry
-- Location
-- Description
+* Company Name
+* Company Email
+* Password
+* Phone Number
+* Website
+* Industry
+* Location
+* Description
+
+Job posting validates:
+
+* Job title
+* Job description
+* Company ID
+* Skill names
+* Skill threshold values
+
+Threshold rules:
+
+* Threshold must be an integer
+* Minimum value: 0
+* Maximum value: 100
 
 ---
 
-## Security
+# Security
 
-- Passwords are hashed using bcrypt.
-- JWT tokens are generated after successful registration.
-- Helmet secures HTTP headers.
-- CORS enabled.
-- Input validation using Zod.
-- Sensitive data such as passwords is not returned in API responses.
-
----
-
-## Database Models
-
-### Company
-
-- id
-- name
-- email
-- phone
-- website
-- industry
-- description
-- location
-- logo
-- createdAt
-- updatedAt
-
-### User
-
-- id
-- name
-- email
-- password
-- role
-- companyId
-- createdAt
-
-### CompanyKYC
-
-- id
-- companyId
-- status
-- documentUrl
-- verifiedAt
+* Passwords are hashed using bcrypt.
+* JWT tokens are generated after successful registration.
+* Helmet secures HTTP headers.
+* CORS enabled.
+* Input validation implemented using Zod.
+* Sensitive data such as passwords is not returned in API responses.
 
 ---
 
-## Task Completion
+# Database Models
 
-- Marketplace entities modeled
-- Marketplace entities migrated
-- Company onboarding implemented
-- Company profile creation
-- Company profile retrieval
-- JWT authentication
-- Zod validation
-- PostgreSQL integration
-- Prisma ORM implementation
+## Company
+
+* id
+* name
+* email
+* phone
+* website
+* industry
+* description
+* location
+* logo
+* createdAt
+* updatedAt
+
+## User
+
+* id
+* name
+* email
+* password
+* role
+* companyId
+* createdAt
+
+## CompanyKYC
+
+* id
+* companyId
+* status
+* documentUrl
+* verifiedAt
+
+## Job
+
+* id
+* title
+* description
+* location
+* experience
+* assessmentLink
+* companyId
+* createdAt
+* updatedAt
+
+## SkillThreshold
+
+* id
+* skill
+* threshold
+* jobId
+* createdAt
+
+---
+
+# Task Completion
+
+* Marketplace entities modeled
+* Database schema migrated using Prisma
+* Company onboarding implemented
+* Company profile creation
+* Company profile retrieval
+* JWT authentication
+* Password hashing
+* Zod validation
+* PostgreSQL integration
+* Prisma ORM implementation
+* Job posting with skill thresholds
+* Threshold rules engine
+* Automatic assessment link generation
+* Job retrieval with company and threshold details
 
 ---
 
 ## Author
 
 **Bhoomi**
-
