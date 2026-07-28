@@ -127,7 +127,7 @@ http://localhost:3000
 
 ## Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root and add the following variables:
 
 ```env
 DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>"
@@ -177,7 +177,7 @@ Sample Request:
 Example:
 
 ```
-GET /api/company/b0e0f807-ccbd-4fe7-9441-dbb6e19e8741
+GET /api/company/b0e0f807-ccbd-4fe7-9441-dbb6e19e7925
 ```
 
 ---
