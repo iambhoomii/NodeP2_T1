@@ -1,33 +1,51 @@
-# Backend Marketplace - Company Onboarding & Job Posting
+# Backend Marketplace - Company Onboarding, Job Posting & Search
 
 ## Overview
 
-This project implements the backend foundation for a marketplace platform where companies can register, create profiles, and publish jobs with skill-based eligibility thresholds.
+This project implements the backend foundation for a marketplace platform where companies can register, manage their profiles, publish jobs with skill-based eligibility thresholds, and provide search and discovery APIs for job listings.
 
-The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM with JWT-based authentication, password hashing, Zod validation, and a threshold rules engine for job assessments.
+The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM with JWT authentication, bcrypt password hashing, Zod validation, and a simple search ranking mechanism.
 
 ---
 
-## Features
+# Features
 
-* Company Registration API
+### Company Management
+
+* Company Registration
 * Company Profile Creation
 * Company Profile Retrieval
 * JWT Authentication
 * Password Hashing using bcrypt
-* Request Validation using Zod
-* Job Posting API
+
+### Job Management
+
+* Create Job Posting
+* Associate Jobs with Companies
 * Skill Threshold Management
 * Threshold Rules Engine
-* Per-job Assessment Link Generation
+* Automatic Assessment Link Generation
+
+### Search & Discovery
+
+* Search Jobs by Keyword
+* Filter Jobs by Location
+* Filter Jobs by Experience
+* Ranked Search Results
+* Discovery API for Job Listings
+
+### Backend
+
+* Prisma ORM
 * PostgreSQL Database
-* Prisma ORM & Migrations
 * Dockerized PostgreSQL
-* Secure API development using Helmet and CORS
+* Zod Validation
+* Helmet Security
+* CORS Support
 
 ---
 
-## Tech Stack
+# Tech Stack
 
 * Node.js
 * Express.js
@@ -43,9 +61,9 @@ The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM w
 
 ---
 
-## Project Structure
+# Project Structure
 
-```
+```text
 Task1_P2/
 │
 ├── prisma/
@@ -73,21 +91,22 @@ Task1_P2/
 ├── .env
 ├── docker-compose.yml
 ├── package.json
-└── prisma.config.ts
+├── prisma.config.ts
+└── README.md
 ```
 
 ---
 
-## Installation
+# Installation
 
-### Clone the repository
+### Clone Repository
 
 ```bash
 git clone <repository-url>
 cd Task1_P2
 ```
 
-### Install dependencies
+### Install Dependencies
 
 ```bash
 npm install
@@ -99,7 +118,7 @@ npm install
 docker compose up -d
 ```
 
-### Run Prisma Migration
+### Run Prisma Migrations
 
 ```bash
 npx prisma migrate dev
@@ -111,23 +130,23 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
-### Start the Server
+### Start Development Server
 
 ```bash
 npm run dev
 ```
 
-Server runs at:
+Server:
 
-```
+```text
 http://localhost:3000
 ```
 
 ---
 
-## Environment Variables
+# Environment Variables
 
-Create a `.env` file in the project root and add the following variables:
+Create a `.env` file:
 
 ```env
 DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>"
@@ -141,15 +160,15 @@ JWT_SECRET=your_jwt_secret_key
 
 ## Company APIs
 
-### Company Signup
+### Register Company
 
 **POST**
 
-```
+```text
 /api/company/signup
 ```
 
-Sample Request:
+Sample Request
 
 ```json
 {
@@ -170,29 +189,23 @@ Sample Request:
 
 **GET**
 
-```
+```text
 /api/company/:id
-```
-
-Example:
-
-```
-GET /api/company/b0e0f807-ccbd-4fe7-9441-dbb6e19e7925
 ```
 
 ---
 
-# Job APIs
+## Job APIs
 
-## Create Job
+### Create Job
 
 **POST**
 
-```
+```text
 /api/jobs
 ```
 
-Sample Request:
+Sample Request
 
 ```json
 {
@@ -220,11 +233,11 @@ Sample Request:
 
 ---
 
-## Get Job Details
+### Get Job Details
 
 **GET**
 
-```
+```text
 /api/jobs/:id
 ```
 
@@ -233,13 +246,52 @@ Returns:
 * Job details
 * Company information
 * Skill thresholds
-* Generated assessment link
+* Assessment link
+
+---
+
+## Search Jobs
+
+**GET**
+
+```text
+/api/jobs/search
+```
+
+Examples
+
+```text
+GET /api/jobs/search
+```
+
+```text
+GET /api/jobs/search?keyword=React
+```
+
+```text
+GET /api/jobs/search?location=Bangalore
+```
+
+```text
+GET /api/jobs/search?experience=2 Years
+```
+
+```text
+GET /api/jobs/search?keyword=React&location=Bangalore
+```
+
+The search endpoint supports:
+
+* Keyword-based search
+* Location filtering
+* Experience filtering
+* Ranked job results based on keyword relevance
 
 ---
 
 # Validation
 
-Company registration validates:
+### Company Validation
 
 * Company Name
 * Company Email
@@ -250,30 +302,29 @@ Company registration validates:
 * Location
 * Description
 
-Job posting validates:
+### Job Validation
 
-* Job title
-* Job description
 * Company ID
-* Skill names
-* Skill threshold values
+* Job Title
+* Job Description
+* Skill Name
+* Threshold Value
 
-Threshold rules:
+Threshold Rules:
 
-* Threshold must be an integer
-* Minimum value: 0
-* Maximum value: 100
+* Minimum: 0
+* Maximum: 100
 
 ---
 
 # Security
 
-* Passwords are hashed using bcrypt.
-* JWT tokens are generated after successful registration.
-* Helmet secures HTTP headers.
-* CORS enabled.
-* Input validation implemented using Zod.
-* Sensitive data such as passwords is not returned in API responses.
+* Passwords hashed using bcrypt
+* JWT authentication
+* Helmet security headers
+* CORS enabled
+* Zod request validation
+* Sensitive information excluded from API responses
 
 ---
 
@@ -335,23 +386,33 @@ Threshold rules:
 
 # Task Completion
 
+## Phase 2 Task 1
+
 * Marketplace entities modeled
-* Database schema migrated using Prisma
 * Company onboarding implemented
 * Company profile creation
 * Company profile retrieval
 * JWT authentication
-* Password hashing
-* Zod validation
-* PostgreSQL integration
-* Prisma ORM implementation
-* Job posting with skill thresholds
+* Prisma integration
+
+## Phase 2 Task 2
+
+* Job posting implemented
+* Skill threshold management
 * Threshold rules engine
-* Automatic assessment link generation
-* Job retrieval with company and threshold details
+* Assessment link generation
+
+## Phase 2 Task 3
+
+* Search service implemented
+* Discovery API created
+* Keyword search
+* Location filtering
+* Experience filtering
+* Ranked job search results
 
 ---
 
-## Author
+# Author
 
 **Bhoomi**

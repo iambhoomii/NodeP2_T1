@@ -89,7 +89,85 @@ const getJobById = async (req, res) => {
   }
 };
 
+const searchJobs = async (req, res) => {
+  try {
+    const { keyword, location, experience } = req.query;
+
+    const where = {};
+
+    if (keyword) {
+      where.OR = [
+        {
+          title: {
+            contains: keyword,
+          },
+        },
+        {
+          description: {
+            contains: keyword,
+          },
+        },
+      ];
+    }
+
+    if (location) {
+      where.location = {
+        contains: location,
+      };
+    }
+
+    if (experience) {
+      where.experience = {
+        contains: experience,
+      };
+    }
+
+    let jobs = await prisma.job.findMany({
+      where,
+      include: {
+        company: true,
+        thresholds: true,
+      },
+    });
+
+    // Simple ranking
+    if (keyword) {
+      const search = keyword.toLowerCase();
+
+      jobs = jobs
+        .map((job) => {
+          let score = 0;
+
+          if (job.title.toLowerCase().includes(search)) score += 2;
+          if (job.description.toLowerCase().includes(search)) score += 1;
+
+          return {
+            ...job,
+            score,
+          };
+        })
+        .sort((a, b) => b.score - a.score);
+    } else {
+      jobs.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    }
+
+    res.json({
+      count: jobs.length,
+      jobs,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   createJob,
   getJobById,
+  searchJobs,
 };
