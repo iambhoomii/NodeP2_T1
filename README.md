@@ -1,10 +1,10 @@
-# Backend Marketplace - Company Onboarding, Job Posting & Search
+# Backend Marketplace - Company Onboarding, Job Posting, Search & Applications
 
 ## Overview
 
-This project implements the backend foundation for a marketplace platform where companies can register, manage their profiles, publish jobs with skill-based eligibility thresholds, and provide search and discovery APIs for job listings.
+This project implements the backend foundation for a marketplace platform where companies can register, manage their profiles, publish jobs with skill-based eligibility thresholds, search job listings, and manage student applications with shortlisting functionality.
 
-The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM with JWT authentication, bcrypt password hashing, Zod validation, and a simple search ranking mechanism.
+The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM with JWT authentication, bcrypt password hashing, Zod validation, and a search & discovery system.
 
 ---
 
@@ -33,6 +33,13 @@ The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM w
 * Filter Jobs by Experience
 * Ranked Search Results
 * Discovery API for Job Listings
+
+### Applications & Shortlisting
+
+* Student Job Application
+* View Applications by Job
+* Candidate Shortlisting
+* Duplicate Application Prevention
 
 ### Backend
 
@@ -73,18 +80,21 @@ Task1_P2/
 ├── src/
 │   ├── controllers/
 │   │   ├── company.controller.js
-│   │   └── job.controller.js
+│   │   ├── job.controller.js
+│   │   └── application.controller.js
 │   │
 │   ├── routes/
 │   │   ├── company.routes.js
-│   │   └── job.routes.js
+│   │   ├── job.routes.js
+│   │   └── application.routes.js
 │   │
 │   ├── utils/
 │   │   └── prisma.js
 │   │
 │   ├── validators/
 │   │   ├── company.validator.js
-│   │   └── job.validation.js
+│   │   ├── job.validation.js
+│   │   └── application.validation.js
 │   │
 │   └── server.js
 │
@@ -168,23 +178,6 @@ JWT_SECRET=your_jwt_secret_key
 /api/company/signup
 ```
 
-Sample Request
-
-```json
-{
-  "companyName": "TechNova",
-  "companyEmail": "admin@example.com",
-  "password": "SecurePassword123",
-  "phone": "9876543210",
-  "website": "https://technova.com",
-  "industry": "Software",
-  "location": "Bangalore",
-  "description": "Software development company"
-}
-```
-
----
-
 ### Get Company Profile
 
 **GET**
@@ -205,34 +198,6 @@ Sample Request
 /api/jobs
 ```
 
-Sample Request
-
-```json
-{
-  "companyId": "company_uuid",
-  "title": "Frontend Developer",
-  "description": "React developer with Node.js knowledge",
-  "location": "Bangalore",
-  "experience": "2 Years",
-  "thresholds": [
-    {
-      "skill": "React",
-      "threshold": 80
-    },
-    {
-      "skill": "JavaScript",
-      "threshold": 75
-    },
-    {
-      "skill": "Node.js",
-      "threshold": 70
-    }
-  ]
-}
-```
-
----
-
 ### Get Job Details
 
 **GET**
@@ -241,16 +206,7 @@ Sample Request
 /api/jobs/:id
 ```
 
-Returns:
-
-* Job details
-* Company information
-* Skill thresholds
-* Assessment link
-
----
-
-## Search Jobs
+### Search Jobs
 
 **GET**
 
@@ -262,30 +218,63 @@ Examples
 
 ```text
 GET /api/jobs/search
-```
-
-```text
 GET /api/jobs/search?keyword=React
-```
-
-```text
 GET /api/jobs/search?location=Bangalore
-```
-
-```text
 GET /api/jobs/search?experience=2 Years
-```
-
-```text
 GET /api/jobs/search?keyword=React&location=Bangalore
 ```
 
-The search endpoint supports:
+Supports:
 
-* Keyword-based search
-* Location filtering
-* Experience filtering
-* Ranked job results based on keyword relevance
+* Keyword Search
+* Location Filter
+* Experience Filter
+* Ranked Job Results
+
+---
+
+## Application APIs
+
+### Apply for a Job
+
+**POST**
+
+```text
+/api/applications
+```
+
+Sample Request
+
+```json
+{
+  "studentId": "student_uuid",
+  "jobId": "job_uuid"
+}
+```
+
+---
+
+### View Applications for a Job
+
+**GET**
+
+```text
+/api/applications/job/:jobId
+```
+
+Returns all applications submitted for a specific job.
+
+---
+
+### Shortlist Candidate
+
+**PATCH**
+
+```text
+/api/applications/:applicationId/shortlist
+```
+
+Updates the application status to **SHORTLISTED**.
 
 ---
 
@@ -308,12 +297,13 @@ The search endpoint supports:
 * Job Title
 * Job Description
 * Skill Name
-* Threshold Value
+* Threshold Value (0–100)
 
-Threshold Rules:
+### Application Validation
 
-* Minimum: 0
-* Maximum: 100
+* Student ID (UUID)
+* Job ID (UUID)
+* Prevent duplicate applications for the same student and job
 
 ---
 
@@ -324,6 +314,7 @@ Threshold Rules:
 * Helmet security headers
 * CORS enabled
 * Zod request validation
+* Duplicate application prevention
 * Sensitive information excluded from API responses
 
 ---
@@ -353,13 +344,17 @@ Threshold Rules:
 * role
 * companyId
 * createdAt
+* updatedAt
 
 ## CompanyKYC
 
 * id
 * companyId
-* status
+* documentType
+* documentNumber
 * documentUrl
+* status
+* submittedAt
 * verifiedAt
 
 ## Job
@@ -381,6 +376,15 @@ Threshold Rules:
 * threshold
 * jobId
 * createdAt
+
+## Application
+
+* id
+* studentId
+* jobId
+* status
+* createdAt
+* updatedAt
 
 ---
 
@@ -410,6 +414,15 @@ Threshold Rules:
 * Location filtering
 * Experience filtering
 * Ranked job search results
+
+## Phase 2 Task 4
+
+* Application service implemented
+* Student job application
+* View applications by job
+* Candidate shortlisting
+* Duplicate application prevention
+* PostgreSQL persistence using Prisma ORM
 
 ---
 
