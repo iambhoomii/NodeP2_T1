@@ -1,10 +1,10 @@
-# Backend Marketplace - Company Onboarding, Job Posting, Search & Applications
+# Backend Marketplace - Company Onboarding, Job Posting, Applications & Search
 
 ## Overview
 
-This project implements the backend foundation for a marketplace platform where companies can register, manage their profiles, publish jobs with skill-based eligibility thresholds, search job listings, and manage student applications with shortlisting functionality.
+This project implements the backend foundation for a marketplace platform where companies can register, manage their profiles, publish jobs with skill-based eligibility thresholds, manage student applications, shortlist candidates, and provide search and discovery APIs for job listings.
 
-The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM with JWT authentication, bcrypt password hashing, Zod validation, and a search & discovery system.
+The application is built using **Node.js, Express.js, PostgreSQL, and Prisma ORM** with **JWT authentication, bcrypt password hashing, Zod validation**, and supports a complete marketplace workflow from company registration to candidate shortlisting.
 
 ---
 
@@ -26,6 +26,14 @@ The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM w
 * Threshold Rules Engine
 * Automatic Assessment Link Generation
 
+### Application Management
+
+* Student Job Applications
+* Duplicate Application Prevention
+* View Applications by Job
+* Candidate Shortlisting
+* Application Status Tracking
+
 ### Search & Discovery
 
 * Search Jobs by Keyword
@@ -33,13 +41,6 @@ The application is built using Node.js, Express.js, PostgreSQL, and Prisma ORM w
 * Filter Jobs by Experience
 * Ranked Search Results
 * Discovery API for Job Listings
-
-### Applications & Shortlisting
-
-* Student Job Application
-* View Applications by Job
-* Candidate Shortlisting
-* Duplicate Application Prevention
 
 ### Backend
 
@@ -88,20 +89,20 @@ Task1_P2/
 │   │   ├── job.routes.js
 │   │   └── application.routes.js
 │   │
-│   ├── utils/
-│   │   └── prisma.js
-│   │
 │   ├── validators/
 │   │   ├── company.validator.js
 │   │   ├── job.validation.js
 │   │   └── application.validation.js
 │   │
+│   ├── utils/
+│   │   └── prisma.js
+│   │
 │   └── server.js
 │
-├── .env
+├── prisma.config.ts
 ├── docker-compose.yml
 ├── package.json
-├── prisma.config.ts
+├── .env
 └── README.md
 ```
 
@@ -146,7 +147,7 @@ npx prisma generate
 npm run dev
 ```
 
-Server:
+Server URL
 
 ```text
 http://localhost:3000
@@ -156,7 +157,7 @@ http://localhost:3000
 
 # Environment Variables
 
-Create a `.env` file:
+Create a `.env` file.
 
 ```env
 DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>"
@@ -178,6 +179,23 @@ JWT_SECRET=your_jwt_secret_key
 /api/company/signup
 ```
 
+Sample Request
+
+```json
+{
+  "companyName": "TechNova",
+  "companyEmail": "admin@example.com",
+  "password": "SecurePassword123",
+  "phone": "9876543210",
+  "website": "https://technova.com",
+  "industry": "Software",
+  "location": "Bangalore",
+  "description": "Software development company"
+}
+```
+
+---
+
 ### Get Company Profile
 
 **GET**
@@ -198,6 +216,34 @@ JWT_SECRET=your_jwt_secret_key
 /api/jobs
 ```
 
+Sample Request
+
+```json
+{
+  "companyId": "company_uuid",
+  "title": "Frontend Developer",
+  "description": "React developer with Node.js knowledge",
+  "location": "Bangalore",
+  "experience": "2 Years",
+  "thresholds": [
+    {
+      "skill": "React",
+      "threshold": 80
+    },
+    {
+      "skill": "JavaScript",
+      "threshold": 75
+    },
+    {
+      "skill": "Node.js",
+      "threshold": 70
+    }
+  ]
+}
+```
+
+---
+
 ### Get Job Details
 
 **GET**
@@ -206,7 +252,17 @@ JWT_SECRET=your_jwt_secret_key
 /api/jobs/:id
 ```
 
-### Search Jobs
+Returns:
+
+* Job details
+* Company information
+* Skill thresholds
+* Assessment link
+* Applications for the job
+
+---
+
+## Search Jobs
 
 **GET**
 
@@ -224,18 +280,18 @@ GET /api/jobs/search?experience=2 Years
 GET /api/jobs/search?keyword=React&location=Bangalore
 ```
 
-Supports:
+Supports
 
 * Keyword Search
 * Location Filter
 * Experience Filter
-* Ranked Job Results
+* Ranked Search Results
 
 ---
 
 ## Application APIs
 
-### Apply for a Job
+### Apply for Job
 
 **POST**
 
@@ -254,7 +310,7 @@ Sample Request
 
 ---
 
-### View Applications for a Job
+### Get Applications for a Job
 
 **GET**
 
@@ -262,7 +318,7 @@ Sample Request
 /api/applications/job/:jobId
 ```
 
-Returns all applications submitted for a specific job.
+Returns all applications submitted for the selected job.
 
 ---
 
@@ -274,7 +330,7 @@ Returns all applications submitted for a specific job.
 /api/applications/:applicationId/shortlist
 ```
 
-Updates the application status to **SHORTLISTED**.
+Updates application status from **APPLIED** to **SHORTLISTED**.
 
 ---
 
@@ -297,24 +353,31 @@ Updates the application status to **SHORTLISTED**.
 * Job Title
 * Job Description
 * Skill Name
-* Threshold Value (0–100)
+* Threshold Value
+
+Threshold Rules
+
+* Minimum: 0
+* Maximum: 100
 
 ### Application Validation
 
 * Student ID (UUID)
 * Job ID (UUID)
-* Prevent duplicate applications for the same student and job
+* Duplicate Application Prevention
+* Existing Student Validation
+* Existing Job Validation
 
 ---
 
 # Security
 
-* Passwords hashed using bcrypt
-* JWT authentication
-* Helmet security headers
-* CORS enabled
-* Zod request validation
-* Duplicate application prevention
+* Password hashing using bcrypt
+* JWT Authentication
+* Helmet Security Headers
+* CORS Enabled
+* Zod Request Validation
+* Duplicate Application Prevention
 * Sensitive information excluded from API responses
 
 ---
@@ -344,7 +407,6 @@ Updates the application status to **SHORTLISTED**.
 * role
 * companyId
 * createdAt
-* updatedAt
 
 ## CompanyKYC
 
@@ -417,12 +479,32 @@ Updates the application status to **SHORTLISTED**.
 
 ## Phase 2 Task 4
 
-* Application service implemented
-* Student job application
+* Student application service implemented
+* Duplicate application prevention
 * View applications by job
 * Candidate shortlisting
-* Duplicate application prevention
-* PostgreSQL persistence using Prisma ORM
+* Application status tracking
+
+## Phase 2 Task 5
+
+* Marketplace APIs stabilized
+* End-to-end marketplace workflow completed
+* Company → Job → Application → Shortlisting flow verified
+* Improved validation and integration handling
+* Stable APIs ready for frontend integration
+
+---
+
+# Future Improvements
+
+* Role-based authorization
+* Pagination for job listings
+* Authentication middleware
+* Company dashboard
+* Student dashboard
+* Email notifications
+* File upload for resumes
+* Payment integration
 
 ---
 

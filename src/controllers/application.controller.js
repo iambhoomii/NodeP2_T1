@@ -5,6 +5,30 @@ const applyJob = async (req, res) => {
   try {
     const data = applicationSchema.parse(req.body);
 
+    const student = await prisma.user.findUnique({
+  where: {
+    id: data.studentId,
+  },
+});
+
+if (!student) {
+  return res.status(404).json({
+    message: "Student not found",
+  });
+}
+
+const job = await prisma.job.findUnique({
+  where: {
+    id: data.jobId,
+  },
+});
+
+if (!job) {
+  return res.status(404).json({
+    message: "Job not found",
+  });
+}
+
     const existingApplication = await prisma.application.findUnique({
       where: {
         studentId_jobId: {

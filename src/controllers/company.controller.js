@@ -98,18 +98,25 @@ const getCompanyById = async (req, res) => {
 
     const company = await prisma.company.findUnique({
       where: { id },
-      include: {
-        users: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            createdAt: true,
-          },
-        },
-        kyc: true,
-      },
+include: {
+  users: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+    },
+  },
+
+  jobs: {
+    include: {
+      thresholds: true,
+    },
+  },
+
+  kyc: true,
+},
     });
 
     if (!company) {

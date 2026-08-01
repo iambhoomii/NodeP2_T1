@@ -69,9 +69,22 @@ const getJobById = async (req, res) => {
     const job = await prisma.job.findUnique({
       where: { id },
       include: {
-        company: true,
-        thresholds: true,
+  company: true,
+
+  thresholds: true,
+
+  applications: {
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
       },
+    },
+  },
+},
     });
 
     if (!job) {
@@ -124,10 +137,23 @@ const searchJobs = async (req, res) => {
 
     let jobs = await prisma.job.findMany({
       where,
-      include: {
-        company: true,
-        thresholds: true,
+include: {
+  company: true,
+
+  thresholds: true,
+
+  applications: {
+    include: {
+      student: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
       },
+    },
+  },
+},
     });
 
     // Simple ranking
