@@ -34,6 +34,15 @@ The application is built using **Node.js, Express.js, PostgreSQL, and Prisma ORM
 * Candidate Shortlisting
 * Application Status Tracking
 
+### Payment Management
+
+* Razorpay Test Mode Integration
+* Create Payment Orders
+* Verify Payment Signatures
+* Payment Status Tracking
+* Payment Persistence
+* Duplicate Payment Prevention (Idempotency)
+
 ### Search & Discovery
 
 * Search Jobs by Keyword
@@ -66,6 +75,7 @@ The application is built using **Node.js, Express.js, PostgreSQL, and Prisma ORM
 * dotenv
 * Helmet
 * CORS
+* Razorpay
 
 ---
 
@@ -86,16 +96,28 @@ Task1_P2/
 │   │
 │   ├── routes/
 │   │   ├── company.routes.js
+│   │   ├── job.r├── src/
+│   ├── controllers/
+│   │   ├── company.controller.js
+│   │   ├── job.controller.js
+│   │   ├── application.controller.js
+│   │   └── payment.controller.js
+│   │
+│   ├── routes/
+│   │   ├── company.routes.js
 │   │   ├── job.routes.js
-│   │   └── application.routes.js
+│   │   ├── application.routes.js
+│   │   └── payment.routes.js
 │   │
 │   ├── validators/
 │   │   ├── company.validator.js
 │   │   ├── job.validation.js
-│   │   └── application.validation.js
+│   │   ├── application.validation.js
+│   │   └── payment.validation.js
 │   │
 │   ├── utils/
-│   │   └── prisma.js
+│   │   ├── prisma.js
+│   │   └── razorpay.js
 │   │
 │   └── server.js
 │
@@ -163,6 +185,9 @@ Create a `.env` file.
 DATABASE_URL="postgresql://<username>:<password>@localhost:5432/<database_name>"
 PORT=3000
 JWT_SECRET=your_jwt_secret_key
+
+RAZORPAY_KEY_ID=your_key_id
+RAZORPAY_KEY_SECRET=your_key_secret
 ```
 
 ---
@@ -309,7 +334,32 @@ Sample Request
 ```
 
 ---
+## Payment APIs
 
+### Create Payment Order
+
+**POST**
+
+```text
+/api/payments/create-order
+```
+
+### Verify Payment
+
+**POST**
+
+```text
+/api/payments/verify
+```
+
+### Get Payment Details
+
+**GET**
+
+```text
+/api/payments/:id
+```
+---
 ### Get Applications for a Job
 
 **GET**
@@ -448,6 +498,20 @@ Threshold Rules
 * createdAt
 * updatedAt
 
+  ## Payment
+
+* id
+* applicationId
+* amount
+* currency
+* gateway
+* status
+* razorpayOrderId
+* razorpayPaymentId
+* razorpaySignature
+* createdAt
+* updatedAt
+
 ---
 
 # Task Completion
@@ -492,6 +556,17 @@ Threshold Rules
 * Company → Job → Application → Shortlisting flow verified
 * Improved validation and integration handling
 * Stable APIs ready for frontend integration
+
+## Phase 2 Task 6
+
+* Payment data model implemented
+* Razorpay test mode integration completed
+* Payment order creation API
+* Payment verification API
+* Payment status tracking
+* Payment persistence using PostgreSQL
+* Idempotency implemented to prevent duplicate payments
+* Payment workflow tested using Postman
 
 ---
 
