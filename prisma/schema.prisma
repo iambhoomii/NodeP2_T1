@@ -6,6 +6,36 @@ datasource db {
   provider = "postgresql"
 }
 
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum PaymentGateway {
+  RAZORPAY
+}
+
+model Payment {
+  id String @id @default(uuid())
+
+  applicationId String
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  amount Int
+  currency String @default("INR")
+
+  gateway PaymentGateway @default(RAZORPAY)
+  status PaymentStatus @default(PENDING)
+
+  razorpayOrderId String? @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
   id       String @id @default(uuid())
   name     String
@@ -98,6 +128,8 @@ model Application {
   job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   status String @default("APPLIED")
+
+  payments Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

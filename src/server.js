@@ -4,6 +4,7 @@ const helmet = require("helmet");
 require("dotenv").config();
 const jobRoutes = require("./routes/job.routes");
 const applicationRoutes = require("./routes/application.routes");
+const paymentRoutes = require("./routes/payment.routes");
 
 
 const companyRoutes = require("./routes/company.routes");
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/company", companyRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/payments", paymentRoutes);
 
 app.get("/", (req, res) => {
   res.json({
