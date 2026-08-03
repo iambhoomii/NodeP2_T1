@@ -1,38 +1,38 @@
-# Backend Marketplace - Company Onboarding, Job Posting, Applications & Search
+# Backend Marketplace - Company Onboarding, Job Posting, Applications, Search & Payment Integration
 
 ## Overview
 
-This project implements the backend foundation for a marketplace platform where companies can register, manage their profiles, publish jobs with skill-based eligibility thresholds, manage student applications, shortlist candidates, and provide search and discovery APIs for job listings.
+This project implements the backend foundation for a marketplace platform where companies can register, manage their profiles, publish job openings with skill-based eligibility thresholds, receive student applications, search job listings, and support a complete pay-per-application workflow using Razorpay Test Mode.
 
-The application is built using **Node.js, Express.js, PostgreSQL, and Prisma ORM** with **JWT authentication, bcrypt password hashing, Zod validation**, and supports a complete marketplace workflow from company registration to candidate shortlisting.
+The backend is developed using **Node.js, Express.js, PostgreSQL, Prisma ORM, Razorpay, JWT Authentication, bcrypt, and Zod validation**. It provides an end-to-end marketplace workflow covering company onboarding, job posting, application management, payment processing, payment verification, and gated application submission.
 
 ---
 
 # Features
 
-### Company Management
+## Company Management
 
-* Company Registration
-* Company Profile Creation
-* Company Profile Retrieval
-* JWT Authentication
-* Password Hashing using bcrypt
+- Company Registration
+- Company Profile Creation
+- Company Profile Retrieval
+- JWT Authentication
+- Password Hashing using bcrypt
 
-### Job Management
+## Job Management
 
-* Create Job Posting
-* Associate Jobs with Companies
-* Skill Threshold Management
-* Threshold Rules Engine
-* Automatic Assessment Link Generation
+- Create Job Postings
+- Associate Jobs with Companies
+- Skill Threshold Management
+- Automatic Assessment Link Generation
+- Company-wise Job Listings
 
-### Application Management
+## Application Management
 
-* Student Job Applications
-* Duplicate Application Prevention
-* View Applications by Job
-* Candidate Shortlisting
-* Application Status Tracking
+- Student Job Applications
+- Duplicate Application Prevention
+- View Applications by Job
+- Candidate Shortlisting
+- Application Status Tracking
 
 ### Payment Management
 
@@ -43,39 +43,50 @@ The application is built using **Node.js, Express.js, PostgreSQL, and Prisma ORM
 * Payment Persistence
 * Duplicate Payment Prevention (Idempotency)
 
-### Search & Discovery
+## Search & Discovery
 
-* Search Jobs by Keyword
-* Filter Jobs by Location
-* Filter Jobs by Experience
-* Ranked Search Results
-* Discovery API for Job Listings
+- Keyword Search
+- Location Filtering
+- Experience Filtering
+- Ranked Search Results
+- Job Discovery API
 
-### Backend
+## Payment Management
 
-* Prisma ORM
-* PostgreSQL Database
-* Dockerized PostgreSQL
-* Zod Validation
-* Helmet Security
-* CORS Support
+- Razorpay Test Mode Integration
+- Payment Order Creation
+- Payment Signature Verification
+- Payment Status Tracking
+- Duplicate Pending Payment Prevention
+- Pay-per-Application Workflow
+- Application Access Gated Until Successful Payment
+- Payment Details Retrieval
+
+## Backend Features
+
+- Prisma ORM
+- PostgreSQL Database
+- Dockerized PostgreSQL
+- RESTful APIs
+- Zod Validation
+- Helmet Security
+- CORS Support
 
 ---
 
 # Tech Stack
-
-* Node.js
-* Express.js
-* PostgreSQL
-* Prisma ORM
-* Docker
-* JWT
-* bcrypt
-* Zod
-* dotenv
-* Helmet
-* CORS
-* Razorpay
+- Node.js
+- Express.js
+- PostgreSQL
+- Prisma ORM
+- Razorpay
+- Docker
+- JWT
+- bcrypt
+- Zod
+- dotenv
+- Helmet
+- CORS
 
 ---
 
@@ -92,7 +103,8 @@ Task1_P2/
 │   ├── controllers/
 │   │   ├── company.controller.js
 │   │   ├── job.controller.js
-│   │   └── application.controller.js
+│   │   ├── application.controller.js
+│   │   └── payment.controller.js
 │   │
 │   ├── routes/
 │   │   ├── company.routes.js
@@ -124,6 +136,7 @@ Task1_P2/
 ├── prisma.config.ts
 ├── docker-compose.yml
 ├── package.json
+├── package-lock.json
 ├── .env
 └── README.md
 ```
@@ -132,38 +145,38 @@ Task1_P2/
 
 # Installation
 
-### Clone Repository
+## Clone Repository
 
 ```bash
 git clone <repository-url>
 cd Task1_P2
 ```
 
-### Install Dependencies
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Start PostgreSQL
+## Start PostgreSQL
 
 ```bash
 docker compose up -d
 ```
 
-### Run Prisma Migrations
+## Run Prisma Migrations
 
 ```bash
 npx prisma migrate dev
 ```
 
-### Generate Prisma Client
+## Generate Prisma Client
 
 ```bash
 npx prisma generate
 ```
 
-### Start Development Server
+## Start Development Server
 
 ```bash
 npm run dev
@@ -204,23 +217,6 @@ RAZORPAY_KEY_SECRET=your_key_secret
 /api/company/signup
 ```
 
-Sample Request
-
-```json
-{
-  "companyName": "TechNova",
-  "companyEmail": "admin@example.com",
-  "password": "SecurePassword123",
-  "phone": "9876543210",
-  "website": "https://technova.com",
-  "industry": "Software",
-  "location": "Bangalore",
-  "description": "Software development company"
-}
-```
-
----
-
 ### Get Company Profile
 
 **GET**
@@ -241,34 +237,6 @@ Sample Request
 /api/jobs
 ```
 
-Sample Request
-
-```json
-{
-  "companyId": "company_uuid",
-  "title": "Frontend Developer",
-  "description": "React developer with Node.js knowledge",
-  "location": "Bangalore",
-  "experience": "2 Years",
-  "thresholds": [
-    {
-      "skill": "React",
-      "threshold": 80
-    },
-    {
-      "skill": "JavaScript",
-      "threshold": 75
-    },
-    {
-      "skill": "Node.js",
-      "threshold": 70
-    }
-  ]
-}
-```
-
----
-
 ### Get Job Details
 
 **GET**
@@ -277,17 +245,7 @@ Sample Request
 /api/jobs/:id
 ```
 
-Returns:
-
-* Job details
-* Company information
-* Skill thresholds
-* Assessment link
-* Applications for the job
-
----
-
-## Search Jobs
+### Search Jobs
 
 **GET**
 
@@ -295,22 +253,12 @@ Returns:
 /api/jobs/search
 ```
 
-Examples
+Supports:
 
-```text
-GET /api/jobs/search
-GET /api/jobs/search?keyword=React
-GET /api/jobs/search?location=Bangalore
-GET /api/jobs/search?experience=2 Years
-GET /api/jobs/search?keyword=React&location=Bangalore
-```
-
-Supports
-
-* Keyword Search
-* Location Filter
-* Experience Filter
-* Ranked Search Results
+- Keyword Search
+- Location Filter
+- Experience Filter
+- Ranked Search Results
 
 ---
 
@@ -368,10 +316,6 @@ Sample Request
 /api/applications/job/:jobId
 ```
 
-Returns all applications submitted for the selected job.
-
----
-
 ### Shortlist Candidate
 
 **PATCH**
@@ -380,7 +324,84 @@ Returns all applications submitted for the selected job.
 /api/applications/:applicationId/shortlist
 ```
 
-Updates application status from **APPLIED** to **SHORTLISTED**.
+---
+
+## Payment APIs
+
+### Create Payment Order
+
+**POST**
+
+```text
+/api/payments/create-order
+```
+
+Sample Request
+
+```json
+{
+  "applicationId": "application_uuid",
+  "amount": 199
+}
+```
+
+Creates a Razorpay order in **Test Mode** and stores the payment record in the database.
+
+---
+
+### Verify Payment
+
+**POST**
+
+```text
+/api/payments/verify
+```
+
+Sample Request
+
+```json
+{
+  "razorpay_order_id": "order_xxxxxxxxx",
+  "razorpay_payment_id": "pay_xxxxxxxxx",
+  "razorpay_signature": "signature_xxxxxxxxx"
+}
+```
+
+Verifies the Razorpay payment signature and updates the payment status.
+
+---
+
+### Capture & Apply (Pay-per-Application)
+
+**POST**
+
+```text
+/api/payments/capture-and-apply
+```
+
+Sample Request
+
+```json
+{
+  "paymentId": "payment_uuid",
+  "studentId": "student_uuid",
+  "jobId": "job_uuid"
+}
+```
+
+This endpoint validates that the payment was completed successfully before allowing the application to proceed.
+
+---
+
+### Get Payment Details
+
+**GET**
+
+```text
+/api/payments/:id
+```
+
+Returns payment details together with the related application, student, and job information.
 
 ---
 
@@ -388,47 +409,59 @@ Updates application status from **APPLIED** to **SHORTLISTED**.
 
 ### Company Validation
 
-* Company Name
-* Company Email
-* Password
-* Phone Number
-* Website
-* Industry
-* Location
-* Description
+- Company Name
+- Company Email
+- Password
+- Phone Number
+- Website
+- Industry
+- Location
+- Description
 
 ### Job Validation
 
-* Company ID
-* Job Title
-* Job Description
-* Skill Name
-* Threshold Value
+- Company ID
+- Job Title
+- Job Description
+- Skill Name
+- Threshold Value
 
 Threshold Rules
 
-* Minimum: 0
-* Maximum: 100
+- Minimum Threshold: **0**
+- Maximum Threshold: **100**
 
 ### Application Validation
 
-* Student ID (UUID)
-* Job ID (UUID)
-* Duplicate Application Prevention
-* Existing Student Validation
-* Existing Job Validation
+- Student ID (UUID)
+- Job ID (UUID)
+- Duplicate Application Prevention
+- Existing Student Validation
+- Existing Job Validation
+
+### Payment Validation
+
+- Application ID Validation
+- Payment Amount Validation
+- Razorpay Order ID Validation
+- Razorpay Payment ID Validation
+- Razorpay Signature Validation
+- Duplicate Pending Payment Prevention
 
 ---
 
 # Security
 
-* Password hashing using bcrypt
-* JWT Authentication
-* Helmet Security Headers
-* CORS Enabled
-* Zod Request Validation
-* Duplicate Application Prevention
-* Sensitive information excluded from API responses
+- JWT Authentication
+- Password Hashing using bcrypt
+- Helmet Security Headers
+- CORS Enabled
+- Zod Request Validation
+- Duplicate Application Prevention
+- Razorpay Signature Verification
+- Payment Status Validation
+- Application Access Gated by Payment Status
+- Sensitive information excluded from API responses
 
 ---
 
@@ -436,67 +469,82 @@ Threshold Rules
 
 ## Company
 
-* id
-* name
-* email
-* phone
-* website
-* industry
-* description
-* location
-* logo
-* createdAt
-* updatedAt
+- id
+- name
+- email
+- phone
+- website
+- industry
+- description
+- location
+- logo
+- createdAt
+- updatedAt
 
 ## User
 
-* id
-* name
-* email
-* password
-* role
-* companyId
-* createdAt
+- id
+- name
+- email
+- password
+- role
+- companyId
+- createdAt
+- updatedAt
 
 ## CompanyKYC
 
-* id
-* companyId
-* documentType
-* documentNumber
-* documentUrl
-* status
-* submittedAt
-* verifiedAt
+- id
+- companyId
+- documentType
+- documentNumber
+- documentUrl
+- status
+- submittedAt
+- verifiedAt
 
 ## Job
 
-* id
-* title
-* description
-* location
-* experience
-* assessmentLink
-* companyId
-* createdAt
-* updatedAt
+- id
+- title
+- description
+- location
+- experience
+- assessmentLink
+- companyId
+- createdAt
+- updatedAt
 
 ## SkillThreshold
 
-* id
-* skill
-* threshold
-* jobId
-* createdAt
+- id
+- skill
+- threshold
+- jobId
+- createdAt
 
 ## Application
 
-* id
-* studentId
-* jobId
-* status
-* createdAt
-* updatedAt
+- id
+- studentId
+- jobId
+- status
+- createdAt
+- updatedAt
+
+## Payment
+
+- id
+- applicationId
+- amount
+- currency
+- gateway
+- status
+- razorpayOrderId
+- razorpayPaymentId
+- razorpaySignature
+- createdAt
+- updatedAt
 
   ## Payment
 
@@ -518,44 +566,63 @@ Threshold Rules
 
 ## Phase 2 Task 1
 
-* Marketplace entities modeled
-* Company onboarding implemented
-* Company profile creation
-* Company profile retrieval
-* JWT authentication
-* Prisma integration
+- Marketplace entities modeled
+- Company onboarding implemented
+- Company profile creation
+- Company profile retrieval
+- JWT authentication
+- Prisma integration
 
 ## Phase 2 Task 2
 
-* Job posting implemented
-* Skill threshold management
-* Threshold rules engine
-* Assessment link generation
+- Job posting implemented
+- Skill threshold management
+- Threshold rules engine
+- Assessment link generation
 
 ## Phase 2 Task 3
 
-* Search service implemented
-* Discovery API created
-* Keyword search
-* Location filtering
-* Experience filtering
-* Ranked job search results
+- Search service implemented
+- Discovery API created
+- Keyword search
+- Location filtering
+- Experience filtering
+- Ranked search results
 
 ## Phase 2 Task 4
 
-* Student application service implemented
-* Duplicate application prevention
-* View applications by job
-* Candidate shortlisting
-* Application status tracking
+- Student application service implemented
+- Duplicate application prevention
+- View applications by job
+- Candidate shortlisting
+- Application status tracking
 
 ## Phase 2 Task 5
 
-* Marketplace APIs stabilized
-* End-to-end marketplace workflow completed
-* Company → Job → Application → Shortlisting flow verified
-* Improved validation and integration handling
-* Stable APIs ready for frontend integration
+- Marketplace APIs stabilized
+- End-to-end marketplace workflow completed
+- Company → Job → Application → Shortlisting flow verified
+- Improved validation and integration handling
+- Stable APIs ready for frontend integration
+
+## Phase 2 Task 6
+
+- Payment entity implemented
+- Razorpay Test Mode integration
+- Payment order creation
+- Payment verification
+- Payment status persistence
+- Payment retrieval API
+- Duplicate pending payment prevention
+
+## Phase 2 Task 7
+
+- Pay-per-Application workflow implemented
+- Payment capture integrated with application flow
+- Successful payment required before application processing
+- Application access gated by payment status
+- End-to-end payment flow verified in Test Mode
+- Payment and application data persisted in PostgreSQL
 
 ## Phase 2 Task 6
 
@@ -572,14 +639,18 @@ Threshold Rules
 
 # Future Improvements
 
-* Role-based authorization
-* Pagination for job listings
-* Authentication middleware
-* Company dashboard
-* Student dashboard
-* Email notifications
-* File upload for resumes
-* Payment integration
+- Razorpay Webhooks
+- Automatic Payment Capture
+- Payment Refund APIs
+- Payment Reconciliation Reports
+- Transaction Logs
+- Role-based Authorization
+- Pagination
+- Authentication Middleware
+- Company Dashboard
+- Student Dashboard
+- Email Notifications
+- Resume Upload
 
 ---
 

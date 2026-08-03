@@ -5,6 +5,7 @@ const razorpay = require("../utils/razorpay");
 const {
   createOrderSchema,
   verifyPaymentSchema,
+  captureAndApplySchema,
 } = require("../validators/payment.validation");
 
 const createOrder = async (req, res) => {
@@ -141,6 +142,75 @@ if (!existingPayment) {
   }
 };
 
+const captureAndApply = async (req, res) => {
+  try {
+    const validation = captureAndApplySchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validation.error.issues,
+      });
+    }
+
+    const { paymentId, studentId, jobId } = validation.data;
+
+    const payment = await prisma.payment.findUnique({
+      where: {
+        id: paymentId,
+      },
+    });
+
+    if (!payment) {
+      return res.status(404).json({
+        message: "Payment not found",
+      });
+    }
+
+    if (payment.status !== "SUCCESS") {
+      return res.status(400).json({
+        message: "Payment not completed. Please complete payment first.",
+      });
+    }
+
+    const application = await prisma.application.findUnique({
+      where: {
+        studentId_jobId: {
+          studentId,
+          jobId,
+        },
+      },
+    });
+
+    if (!application) {
+      return res.status(404).json({
+        message: "Application not found.",
+      });
+    }
+
+    const updatedApplication = await prisma.application.update({
+      where: {
+        id: application.id,
+      },
+      data: {
+        status: "PAID",
+      },
+    });
+
+    res.status(200).json({
+      message: "Payment captured successfully. Application unlocked.",
+        application: updatedApplication,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 const getPaymentById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -183,4 +253,5 @@ module.exports = {
   createOrder,
   verifyPayment,
   getPaymentById,
+  captureAndApply,
 };

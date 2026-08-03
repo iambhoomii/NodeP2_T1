@@ -11,7 +11,14 @@ const verifyPaymentSchema = z.object({
   razorpay_signature: z.string(),
 });
 
+const captureAndApplySchema = z.object({
+  paymentId: z.string().uuid(),
+  studentId: z.string().uuid(),
+  jobId: z.string().uuid(),
+});
+
 module.exports = {
   createOrderSchema,
   verifyPaymentSchema,
+  captureAndApplySchema,
 };
