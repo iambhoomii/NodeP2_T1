@@ -211,6 +211,155 @@ const captureAndApply = async (req, res) => {
   }
 };
 
+const issueReceipt = async (req, res) => {
+  try {
+    const { paymentId } = req.body;
+
+    const payment = await prisma.payment.findUnique({
+      where: {
+        id: paymentId,
+      },
+    });
+
+    if (!payment) {
+      return res.status(404).json({
+        message: "Payment not found",
+      });
+    }
+
+    if (payment.status !== "SUCCESS") {
+      return res.status(400).json({
+        message: "Receipt can only be generated for successful payments",
+      });
+    }
+
+    if (payment.receiptIssued) {
+      return res.json({
+        message: "Receipt already issued",
+        receiptNumber: payment.receiptNumber,
+      });
+    }
+
+    const updatedPayment = await prisma.payment.update({
+      where: {
+        id: paymentId,
+      },
+      data: {
+        receiptIssued: true,
+        receiptNumber: `RCPT-${Date.now()}`,
+      },
+    });
+
+    res.json({
+      message: "Receipt generated successfully",
+      payment: updatedPayment,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const refundPayment = async (req, res) => {
+  try {
+    const { paymentId } = req.body;
+
+    const payment = await prisma.payment.findUnique({
+      where: {
+        id: paymentId,
+      },
+    });
+
+    if (!payment) {
+      return res.status(404).json({
+        message: "Payment not found",
+      });
+    }
+
+    if (payment.status !== "SUCCESS") {
+      return res.status(400).json({
+        message: "Only successful payments can be refunded",
+      });
+    }
+
+    if (payment.refundId) {
+      return res.status(400).json({
+        message: "Payment already refunded",
+      });
+    }
+
+    const updatedPayment = await prisma.payment.update({
+      where: {
+        id: paymentId,
+      },
+      data: {
+        status: "REFUNDED",
+        refundId: `refund_${Date.now()}`,
+        refundedAmount: payment.amount,
+        refundedAt: new Date(),
+      },
+    });
+
+    res.json({
+      message: "Payment refunded successfully",
+      payment: updatedPayment,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+const reconcilePayments = async (req, res) => {
+  try {
+
+      const payments = await prisma.payment.findMany({
+        where: {
+          status: {
+            in: ["SUCCESS", "REFUNDED"],
+          },
+        },
+      });
+
+    const updated = [];
+
+    for (const payment of payments) {
+
+      const result = await prisma.payment.update({
+        where: {
+          id: payment.id,
+        },
+        data: {
+          reconciliationStatus: "MATCHED",
+        },
+      });
+
+      updated.push(result);
+    }
+
+    res.json({
+      message: "Reconciliation completed",
+      reconciledPayments: updated.length,
+      payments: updated,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 const getPaymentById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -254,4 +403,7 @@ module.exports = {
   verifyPayment,
   getPaymentById,
   captureAndApply,
+  issueReceipt,
+  refundPayment,
+  reconcilePayments,
 };

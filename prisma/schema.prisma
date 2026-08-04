@@ -10,6 +10,7 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+  REFUNDED
 }
 
 enum PaymentGateway {
@@ -31,6 +32,19 @@ model Payment {
   razorpayOrderId String? @unique
   razorpayPaymentId String?
   razorpaySignature String?
+
+  // Receipt
+  receiptIssued Boolean @default(false)
+  receiptNumber String? @unique
+
+  // Refund
+  refundId String? @unique
+  refundReason String?
+  refundedAmount Int?
+  refundedAt DateTime?
+
+  // Reconciliation
+  reconciliationStatus String @default("PENDING")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
