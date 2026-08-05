@@ -8,7 +8,8 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
   },
-  datasource: {
-  url: "postgresql://postgres:password@localhost:5432/marketplace",
+datasource: {
+  url: process.env.DATABASE_URL!,
+  shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL!,
 },
 });

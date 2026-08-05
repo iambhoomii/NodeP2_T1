@@ -10,6 +10,7 @@ const {
   issueReceipt,
   refundPayment,
   reconcilePayments,
+  failPayment,
 } = require("../controllers/payment.controller");
 
 router.post("/create-order", createOrder);
@@ -24,6 +25,8 @@ router.post("/refund", refundPayment);
 
 // Static route BEFORE dynamic route
 router.get("/reconcile", reconcilePayments);
+
+router.post("/fail", failPayment);
 
 // Keep this LAST
 router.get("/:id", getPaymentById);

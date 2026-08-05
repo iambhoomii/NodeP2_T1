@@ -6,6 +6,7 @@ const {
   createOrderSchema,
   verifyPaymentSchema,
   captureAndApplySchema,
+  failPaymentSchema,
 } = require("../validators/payment.validation");
 
 const createOrder = async (req, res) => {
@@ -21,16 +22,23 @@ const createOrder = async (req, res) => {
 
 const { applicationId, amount } = validation.data;
 
-const existingPayment = await prisma.payment.findFirst({
+const idempotencyKey = req.headers["idempotency-key"];
+
+if (!idempotencyKey) {
+  return res.status(400).json({
+    message: "Idempotency-Key header is required",
+  });
+}
+
+const existingPayment = await prisma.payment.findUnique({
   where: {
-    applicationId,
-    status: "PENDING",
+    idempotencyKey,
   },
 });
 
 if (existingPayment) {
-  return res.status(409).json({
-    message: "A pending payment already exists for this application.",
+  return res.status(200).json({
+    message: "Payment request already processed",
     payment: existingPayment,
   });
 }
@@ -61,6 +69,7 @@ if (existingPayment) {
         amount,
         currency: "INR",
         razorpayOrderId: order.id,
+        idempotencyKey,
       },
     });
 
@@ -100,22 +109,36 @@ const verifyPayment = async (req, res) => {
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest("hex");
 
-        if (generatedSignature !== razorpay_signature) {
-            const existingPayment = await prisma.payment.findUnique({
-  where: {
-    razorpayOrderId: razorpay_order_id,
-  },
-});
+    if (generatedSignature !== razorpay_signature) {
 
-if (!existingPayment) {
-  return res.status(404).json({
-    message: "Payment not found",
-  });
-}
+      const existingPayment = await prisma.payment.findUnique({
+        where: {
+          razorpayOrderId: razorpay_order_id,
+        },
+      });
 
-        return res.status(400).json({
-             message: "Payment verification failed",
+
+      if (!existingPayment) {
+        return res.status(404).json({
+          message: "Payment not found",
         });
+      }
+
+      const failedPayment = await prisma.payment.update({
+        where: {
+          razorpayOrderId: razorpay_order_id,
+        },
+        data: {
+          status: "FAILED",
+          failureReason: "Payment signature verification failed",
+        },
+      });
+
+
+      return res.status(400).json({
+        message: "Payment verification failed",
+        payment: failedPayment,
+      });
     }
 
     const payment = await prisma.payment.update({
@@ -398,6 +421,71 @@ const getPaymentById = async (req, res) => {
   }
 };
 
+const failPayment = async (req, res) => {
+  try {
+
+    const validation = failPaymentSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validation.error.issues,
+      });
+    }
+
+    const { paymentId, reason } = validation.data;
+
+    const payment = await prisma.payment.findUnique({
+      where: { id: paymentId },
+    });
+
+    if (!payment) {
+      return res.status(404).json({
+        message: "Payment not found",
+      });
+    }
+
+    if (payment.status === "SUCCESS") {
+      return res.status(400).json({
+        message: "Successful payment cannot be marked as failed",
+      });
+    }
+
+    if (payment.status === "REFUNDED") {
+      return res.status(400).json({
+        message: "Refunded payment cannot be marked as failed",
+      });
+    }
+
+    if (payment.status === "FAILED") {
+      return res.status(400).json({
+        message: "Payment is already marked as failed",
+      });
+    }
+
+    const updatedPayment = await prisma.payment.update({
+      where: {
+        id: paymentId,
+      },
+      data: {
+        status: "FAILED",
+        failureReason: reason || "Unknown payment failure",
+      },
+    });
+
+    return res.json({
+      message: "Payment marked as failed",
+      payment: updatedPayment,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   createOrder,
   verifyPayment,
@@ -406,4 +494,5 @@ module.exports = {
   issueReceipt,
   refundPayment,
   reconcilePayments,
+  failPayment,
 };

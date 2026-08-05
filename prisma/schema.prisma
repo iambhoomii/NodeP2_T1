@@ -18,135 +18,105 @@ enum PaymentGateway {
 }
 
 model Payment {
-  id String @id @default(uuid())
-
-  applicationId String
-  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-
-  amount Int
-  currency String @default("INR")
-
-  gateway PaymentGateway @default(RAZORPAY)
-  status PaymentStatus @default(PENDING)
-
-  razorpayOrderId String? @unique
-  razorpayPaymentId String?
-  razorpaySignature String?
-
-  // Receipt
-  receiptIssued Boolean @default(false)
-  receiptNumber String? @unique
-
-  // Refund
-  refundId String? @unique
-  refundReason String?
-  refundedAmount Int?
-  refundedAt DateTime?
-
-  // Reconciliation
-  reconciliationStatus String @default("PENDING")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   String         @id @default(uuid())
+  applicationId        String
+  amount               Int
+  currency             String         @default("INR")
+  gateway              PaymentGateway @default(RAZORPAY)
+  status               PaymentStatus  @default(PENDING)
+  razorpayOrderId      String?        @unique
+  idempotencyKey String? @unique
+  razorpayPaymentId    String?
+  razorpaySignature    String?
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  receiptNumber        String?        @unique
+  refundId             String?        @unique
+  refundReason         String?
+  refundedAt           DateTime?
+  receiptIssued        Boolean        @default(false)
+  reconciliationStatus String         @default("PENDING")
+  refundedAmount       Int?
+  failureReason        String?
+  application          Application    @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String
-  role     String @default("COMPANY_ADMIN")
-
-  companyId String?
-  company   Company? @relation(fields: [companyId], references: [id])
-
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String
+  role         String        @default("COMPANY_ADMIN")
+  companyId    String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   applications Application[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  company      Company?      @relation(fields: [companyId], references: [id])
 }
 
 model Company {
-  id String @id @default(uuid())
-
+  id          String      @id @default(uuid())
   name        String
-  email       String  @unique
+  email       String      @unique
   phone       String?
   website     String?
   industry    String?
   description String?
   location    String?
   logo        String?
-
-  users User[]
-  jobs Job[]
-  kyc CompanyKYC?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  kyc         CompanyKYC?
+  jobs        Job[]
+  users       User[]
 }
 
 model Job {
-  id             String   @id @default(uuid())
+  id             String           @id @default(uuid())
   title          String
   description    String
   location       String?
   experience     String?
-  assessmentLink String   @unique
-
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  thresholds SkillThreshold[]
-  applications Application[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  assessmentLink String           @unique
+  companyId      String
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  applications   Application[]
+  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  thresholds     SkillThreshold[]
 }
 
 model SkillThreshold {
-  id        String @id @default(uuid())
-
+  id        String   @id @default(uuid())
   skill     String
   threshold Int
-
-  jobId String
-  job   Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
+  jobId     String
   createdAt DateTime @default(now())
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
 }
 
 model CompanyKYC {
-  id String @id @default(uuid())
-
-  companyId String  @unique
-  company   Company @relation(fields: [companyId], references: [id])
-
+  id             String    @id @default(uuid())
+  companyId      String    @unique
   documentType   String
   documentNumber String
   documentUrl    String?
-
-  status String @default("PENDING")
-
-  submittedAt DateTime  @default(now())
-  verifiedAt  DateTime?
+  status         String    @default("PENDING")
+  submittedAt    DateTime  @default(now())
+  verifiedAt     DateTime?
+  company        Company   @relation(fields: [companyId], references: [id])
 }
 
 model Application {
-  id String @id @default(uuid())
-
+  id        String    @id @default(uuid())
   studentId String
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  jobId String
-  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  status String @default("APPLIED")
-
-  payments Payment[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  jobId     String
+  status    String    @default("APPLIED")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  student   User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payments  Payment[]
 
   @@unique([studentId, jobId])
 }

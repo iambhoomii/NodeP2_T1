@@ -17,8 +17,14 @@ const captureAndApplySchema = z.object({
   jobId: z.string().uuid(),
 });
 
+const failPaymentSchema = z.object({
+  paymentId: z.string().uuid(),
+  reason: z.string().optional(),
+});
+
 module.exports = {
   createOrderSchema,
   verifyPaymentSchema,
   captureAndApplySchema,
+  failPaymentSchema,
 };
