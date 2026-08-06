@@ -1,6 +1,6 @@
 # Backend Marketplace API
 
-A backend marketplace application built using **Node.js**, **Express.js**, **PostgreSQL**, **Prisma ORM**, and **Razorpay Test Mode**. The project supports company onboarding, job posting, student applications, secure payment processing, receipts, refunds, reconciliation, and resilient payment failure handling.
+A backend marketplace application built using **Node.js**, **Express.js**, **PostgreSQL**, **Prisma ORM**, and **Razorpay Test Mode**. The project supports company onboarding, job posting, student applications, secure payment processing, revenue analytics, receipts, refunds, reconciliation, and resilient payment failure handling.
 
 ---
 
@@ -44,12 +44,20 @@ A backend marketplace application built using **Node.js**, **Express.js**, **Pos
 * Application Gating
 * Payment Status Tracking
 * Idempotency Support (Retry Protection)
-* Failure Handling
+* Payment Failure Handling
 * Failure Reason Logging
 * Receipt Generation
 * Refund Processing
 * Payment Reconciliation
 * Payment Lookup API
+
+## Revenue Dashboard
+
+* Total Revenue Analytics
+* Successful Payments Count
+* Refunded Amount Tracking
+* Refunded Payments Count
+* Failed Payments Count
 
 ---
 
@@ -112,7 +120,9 @@ npx prisma generate
 npm run dev
 ```
 
-### Server
+---
+
+# Server
 
 ```text
 http://localhost:3000
@@ -140,45 +150,53 @@ RAZORPAY_KEY_SECRET=your_test_secret
 
 ## Company
 
-| Method | Endpoint              |
-| ------ | --------------------- |
-| POST   | `/api/company/signup` |
-| GET    | `/api/company/:id`    |
+| Method | Endpoint            |
+| ------ | ------------------- |
+| POST   | /api/company/signup |
+| GET    | /api/company/:id    |
 
 ---
 
 ## Jobs
 
-| Method | Endpoint           |
-| ------ | ------------------ |
-| POST   | `/api/jobs`        |
-| GET    | `/api/jobs/:id`    |
-| GET    | `/api/jobs/search` |
+| Method | Endpoint         |
+| ------ | ---------------- |
+| POST   | /api/jobs        |
+| GET    | /api/jobs/:id    |
+| GET    | /api/jobs/search |
 
 ---
 
 ## Applications
 
-| Method | Endpoint                                     |
-| ------ | -------------------------------------------- |
-| POST   | `/api/applications`                          |
-| GET    | `/api/applications/job/:jobId`               |
-| PATCH  | `/api/applications/:applicationId/shortlist` |
+| Method | Endpoint                                   |
+| ------ | ------------------------------------------ |
+| POST   | /api/applications                          |
+| GET    | /api/applications/job/:jobId               |
+| PATCH  | /api/applications/:applicationId/shortlist |
 
 ---
 
 ## Payments
 
-| Method | Endpoint                          |
-| ------ | --------------------------------- |
-| POST   | `/api/payments/create-order`      |
-| POST   | `/api/payments/verify`            |
-| POST   | `/api/payments/capture-and-apply` |
-| POST   | `/api/payments/issue-receipt`     |
-| POST   | `/api/payments/refund`            |
-| POST   | `/api/payments/fail`              |
-| GET    | `/api/payments/reconcile`         |
-| GET    | `/api/payments/:id`               |
+| Method | Endpoint                        |
+| ------ | ------------------------------- |
+| POST   | /api/payments/create-order      |
+| POST   | /api/payments/verify            |
+| POST   | /api/payments/capture-and-apply |
+| POST   | /api/payments/issue-receipt     |
+| POST   | /api/payments/refund            |
+| POST   | /api/payments/fail              |
+| GET    | /api/payments/reconcile         |
+| GET    | /api/payments/:id               |
+
+---
+
+## Revenue Dashboard
+
+| Method | Endpoint               |
+| ------ | ---------------------- |
+| GET    | /api/dashboard/revenue |
 
 ---
 
@@ -285,6 +303,16 @@ RAZORPAY_KEY_SECRET=your_test_secret
 * Failure Reason Persistence
 * Payment Lookup API
 * Enhanced Payment Validation
+
+## Task 10
+
+* Monetization Integration
+* Revenue Dashboard
+* Revenue Analytics API
+* Successful Payment Tracking
+* Refunded Payment Tracking
+* Failed Payment Analytics
+* End-to-End Payment Stabilization
 
 ---
 
