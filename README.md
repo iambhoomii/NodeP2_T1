@@ -1,6 +1,6 @@
 # Backend Marketplace API
 
-A backend marketplace application built using **Node.js**, **Express.js**, **PostgreSQL**, **Prisma ORM**, and **Razorpay Test Mode**. The project supports company onboarding, job posting, student applications, secure payment processing, revenue analytics, receipts, refunds, reconciliation, and resilient payment failure handling.
+A backend marketplace application built using **Node.js**, **Express.js**, **PostgreSQL**, **Prisma ORM**, and **Razorpay Test Mode**. The project supports company onboarding, job posting, student applications, secure payment processing, revenue analytics, offer generation, e-sign provider selection, receipts, refunds, reconciliation, and resilient payment failure handling.
 
 ---
 
@@ -8,73 +8,84 @@ A backend marketplace application built using **Node.js**, **Express.js**, **Pos
 
 ## Company Management
 
-* Company Registration
-* Company Profile Retrieval
-* JWT Authentication
-* Password Hashing (bcrypt)
+- Company Registration
+- Company Profile Retrieval
+- JWT Authentication
+- Password Hashing (bcrypt)
 
 ## Job Management
 
-* Create Jobs
-* Company-wise Job Management
-* Skill Threshold Management
-* Assessment Link Generation
+- Create Jobs
+- Company-wise Job Management
+- Skill Threshold Management
+- Assessment Link Generation
 
 ## Application Management
 
-* Student Job Applications
-* Duplicate Application Prevention
-* View Applications by Job
-* Candidate Shortlisting
-* Application Status Tracking
+- Student Job Applications
+- Duplicate Application Prevention
+- View Applications by Job
+- Candidate Shortlisting
+- Application Status Tracking
 
 ## Search & Discovery
 
-* Search by Keyword
-* Filter by Location
-* Filter by Experience
-* Ranked Search Results
+- Search by Keyword
+- Filter by Location
+- Filter by Experience
+- Ranked Search Results
 
 ## Payment Management
 
-* Razorpay Test Mode Integration
-* Create Payment Order
-* Payment Verification
-* Capture & Apply Workflow
-* Application Gating
-* Payment Status Tracking
-* Idempotency Support (Retry Protection)
-* Payment Failure Handling
-* Failure Reason Logging
-* Receipt Generation
-* Refund Processing
-* Payment Reconciliation
-* Payment Lookup API
+- Razorpay Test Mode Integration
+- Create Payment Order
+- Payment Verification
+- Capture & Apply Workflow
+- Application Gating
+- Payment Status Tracking
+- Idempotency Support (Retry Protection)
+- Payment Failure Handling
+- Failure Reason Logging
+- Receipt Generation
+- Refund Processing
+- Payment Reconciliation
+- Payment Lookup API
 
 ## Revenue Dashboard
 
-* Total Revenue Analytics
-* Successful Payments Count
-* Refunded Amount Tracking
-* Refunded Payments Count
-* Failed Payments Count
+- Total Revenue Analytics
+- Successful Payments Count
+- Refunded Amount Tracking
+- Refunded Payments Count
+- Failed Payments Count
+
+## Offer Management
+
+- Generate Offer Letter
+- Automatic Offer Number Generation
+- Shortlisted Candidate Validation
+- Duplicate Offer Prevention
+- Offer Status Tracking
+- E-Sign Provider Selection
+- Offer Persistence
+- Candidate Offer Management
 
 ---
 
 # Tech Stack
 
-* Node.js
-* Express.js
-* PostgreSQL
-* Prisma ORM
-* Docker
-* Razorpay Test Mode
-* JWT
-* bcrypt
-* Zod
-* Helmet
-* CORS
-* dotenv
+- Node.js
+- Express.js
+- PostgreSQL
+- Prisma ORM
+- Docker
+- Razorpay Test Mode
+- JWT
+- bcrypt
+- Zod
+- Helmet
+- CORS
+- dotenv
 
 ---
 
@@ -150,92 +161,106 @@ RAZORPAY_KEY_SECRET=your_test_secret
 
 ## Company
 
-| Method | Endpoint            |
-| ------ | ------------------- |
-| POST   | /api/company/signup |
-| GET    | /api/company/:id    |
+| Method | Endpoint |
+|--------|----------|
+| POST | /api/company/signup |
+| GET | /api/company/:id |
 
 ---
 
 ## Jobs
 
-| Method | Endpoint         |
-| ------ | ---------------- |
-| POST   | /api/jobs        |
-| GET    | /api/jobs/:id    |
-| GET    | /api/jobs/search |
+| Method | Endpoint |
+|--------|----------|
+| POST | /api/jobs |
+| GET | /api/jobs/:id |
+| GET | /api/jobs/search |
 
 ---
 
 ## Applications
 
-| Method | Endpoint                                   |
-| ------ | ------------------------------------------ |
-| POST   | /api/applications                          |
-| GET    | /api/applications/job/:jobId               |
-| PATCH  | /api/applications/:applicationId/shortlist |
+| Method | Endpoint |
+|--------|----------|
+| POST | /api/applications |
+| GET | /api/applications/job/:jobId |
+| PATCH | /api/applications/:applicationId/shortlist |
 
 ---
 
 ## Payments
 
-| Method | Endpoint                        |
-| ------ | ------------------------------- |
-| POST   | /api/payments/create-order      |
-| POST   | /api/payments/verify            |
-| POST   | /api/payments/capture-and-apply |
-| POST   | /api/payments/issue-receipt     |
-| POST   | /api/payments/refund            |
-| POST   | /api/payments/fail              |
-| GET    | /api/payments/reconcile         |
-| GET    | /api/payments/:id               |
+| Method | Endpoint |
+|--------|----------|
+| POST | /api/payments/create-order |
+| POST | /api/payments/verify |
+| POST | /api/payments/capture-and-apply |
+| POST | /api/payments/issue-receipt |
+| POST | /api/payments/refund |
+| POST | /api/payments/fail |
+| GET | /api/payments/reconcile |
+| GET | /api/payments/:id |
 
 ---
 
 ## Revenue Dashboard
 
-| Method | Endpoint               |
-| ------ | ---------------------- |
-| GET    | /api/dashboard/revenue |
+| Method | Endpoint |
+|--------|----------|
+| GET | /api/dashboard/revenue |
+
+---
+
+## Offers
+
+| Method | Endpoint |
+|--------|----------|
+| POST | /api/offers/generate |
+| PATCH | /api/offers/esign |
 
 ---
 
 # Validation
 
-* Company Validation
-* Job Validation
-* Application Validation
-* Payment Validation (Zod)
-* UUID Validation
-* Razorpay Signature Verification
-* Duplicate Application Prevention
-* Idempotency-Key Validation
-* Duplicate Payment Prevention
-* Payment Failure Validation
+- Company Validation
+- Job Validation
+- Application Validation
+- Payment Validation (Zod)
+- UUID Validation
+- Razorpay Signature Verification
+- Duplicate Application Prevention
+- Duplicate Payment Prevention
+- Idempotency-Key Validation
+- Offer Generation Validation
+- Shortlisted Candidate Validation
+- Duplicate Offer Prevention
+- E-Sign Provider Validation
 
 ---
 
 # Security
 
-* JWT Authentication
-* Password Hashing (bcrypt)
-* Helmet Security
-* CORS
-* Zod Request Validation
-* Razorpay Signature Verification
-* Idempotent Payment Requests
+- JWT Authentication
+- Password Hashing (bcrypt)
+- Helmet Security
+- CORS
+- Zod Request Validation
+- Razorpay Signature Verification
+- Idempotent Payment Requests
+- Secure Offer Generation Workflow
 
 ---
 
 # Database Models
 
-* Company
-* User
-* CompanyKYC
-* Job
-* SkillThreshold
-* Application
-* Payment
+- Company
+- User
+- CompanyKYC
+- Job
+- SkillThreshold
+- Application
+- Payment
+- Offer
 
 ---
 
@@ -243,93 +268,110 @@ RAZORPAY_KEY_SECRET=your_test_secret
 
 ## Task 1
 
-* Marketplace Database Design
-* Company Onboarding
-* Prisma Integration
-* JWT Authentication
+- Marketplace Database Design
+- Company Onboarding
+- Prisma Integration
+- JWT Authentication
 
 ## Task 2
 
-* Job Posting
-* Skill Thresholds
-* Assessment Link Generation
+- Job Posting
+- Skill Thresholds
+- Assessment Link Generation
 
 ## Task 3
 
-* Search & Discovery APIs
-* Keyword Search
-* Location Filter
-* Experience Filter
+- Search & Discovery APIs
+- Keyword Search
+- Location Filter
+- Experience Filter
 
 ## Task 4
 
-* Student Applications
-* Candidate Shortlisting
-* Application Tracking
+- Student Applications
+- Candidate Shortlisting
+- Application Tracking
 
 ## Task 5
 
-* End-to-End Marketplace Workflow
-* API Stabilization
-* Validation Improvements
+- End-to-End Marketplace Workflow
+- API Stabilization
+- Validation Improvements
 
 ## Task 6
 
-* Marketplace Security Enhancements
-* Authentication Improvements
-* Backend Optimization
+- Marketplace Security Enhancements
+- Authentication Improvements
+- Backend Optimization
 
 ## Task 7
 
-* Razorpay Test Integration
-* Payment Order Creation
-* Payment Verification
-* Capture & Apply Workflow
-* Payment Gating
+- Razorpay Test Integration
+- Payment Order Creation
+- Payment Verification
+- Capture & Apply Workflow
+- Payment Gating
 
 ## Task 8
 
-* Receipt Generation
-* Refund Processing
-* Payment Reconciliation
-* Financial Integrity Checks
+- Receipt Generation
+- Refund Processing
+- Payment Reconciliation
+- Financial Integrity Checks
 
 ## Task 9
 
-* Failure Handling & Resilience
-* Deterministic Payment Failure Handling
-* Idempotency-Key Support
-* Retry Protection
-* Failure Reason Persistence
-* Payment Lookup API
-* Enhanced Payment Validation
+- Failure Handling & Resilience
+- Deterministic Payment Failure Handling
+- Idempotency-Key Support
+- Retry Protection
+- Failure Reason Persistence
+- Payment Lookup API
+- Enhanced Payment Validation
 
 ## Task 10
 
-* Monetization Integration
-* Revenue Dashboard
-* Revenue Analytics API
-* Successful Payment Tracking
-* Refunded Payment Tracking
-* Failed Payment Analytics
-* End-to-End Payment Stabilization
+- Monetization Integration
+- Revenue Dashboard
+- Revenue Analytics API
+- Successful Payment Tracking
+- Refunded Payment Tracking
+- Failed Payment Analytics
+- End-to-End Payment Stabilization
+
+## Task 11
+
+- Offer Data Model Design
+- Offer Generation API
+- Automatic Offer Number Generation
+- Candidate Eligibility Verification
+- Duplicate Offer Prevention
+- Offer Persistence in Database
+- E-Sign Provider Selection
+- Offer Status Management
+- End-to-End Offer Workflow
+- Offer Lifecycle Management
 
 ---
 
 # Future Improvements
 
-* Role-Based Authorization
-* Authentication Middleware
-* Pagination
-* Company Dashboard
-* Student Dashboard
-* Resume Upload
-* Email Notifications
-* Razorpay Webhooks
-* PDF Receipt Generation
-* Retry Queue for Failed Payments
-* Structured Logging
-* Monitoring & Alerting
+- Digital Signature Verification
+- Offer PDF Generation
+- Email Offer Delivery
+- Offer Acceptance & Rejection Workflow
+- Role-Based Authorization
+- Authentication Middleware
+- Pagination
+- Company Dashboard
+- Student Dashboard
+- Resume Upload
+- Email Notifications
+- Razorpay Webhooks
+- PDF Receipt Generation
+- Retry Queue for Failed Payments
+- Structured Logging
+- Monitoring & Alerting
 
 ---
 

@@ -117,6 +117,37 @@ model Application {
   job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
   student   User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
   payments  Payment[]
+  offer     Offer?
 
   @@unique([studentId, jobId])
+}
+
+enum OfferStatus {
+  GENERATED
+  SENT
+  SIGNED
+  REJECTED
+}
+
+model Offer {
+  id               String      @id @default(uuid())
+  applicationId    String      @unique
+  offerNumber      String      @unique
+  candidateName    String
+  companyName      String
+  jobTitle         String
+  salary           Int
+  joiningDate      DateTime
+  expiryDate       DateTime
+  status           OfferStatus @default(GENERATED)
+
+  eSignProvider    String?
+  signed           Boolean     @default(false)
+  signedAt         DateTime?
+  signatureHash    String?
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
