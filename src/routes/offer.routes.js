@@ -13,7 +13,7 @@ router.post("/generate", generateOffer);
 
 router.patch("/:offerId/esign", chooseESign);
 
-router.post("/:offerId/verify", verifyOffer);
+router.get("/verify/:offerId", verifyOffer);
 
 
 module.exports = router;
