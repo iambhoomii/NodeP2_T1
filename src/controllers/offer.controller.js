@@ -119,11 +119,20 @@ const chooseESign = async (req, res) => {
     const { offerId } = req.params;
     const { eSignProvider } = req.body;
 
-    if (!eSignProvider) {
-      return res.status(400).json({
-        message: "eSignProvider is required",
-      });
-    }
+    const allowedProviders = ["MOCK_ESIGN"];
+
+if (!eSignProvider) {
+  return res.status(400).json({
+    message: "eSignProvider is required",
+  });
+}
+
+if (!allowedProviders.includes(eSignProvider)) {
+  return res.status(400).json({
+    message: "Invalid eSign provider",
+    allowedProviders,
+  });
+}
 
     const offer = await prisma.offer.findUnique({
       where: {

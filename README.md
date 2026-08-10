@@ -2,7 +2,7 @@
 
 A backend marketplace application built using **Node.js, Express.js, PostgreSQL, Prisma ORM, Docker, and Razorpay Test Mode**.
 
-The project supports company onboarding, job posting, student applications, application status tracking, payments, revenue analytics, offer generation, e-sign selection, public offer verification, interview scheduling, and job description parsing.
+The project supports company onboarding, job posting, student applications, payments, revenue analytics, offer generation, e-sign integration, offer integrity verification, interview scheduling, and end-to-end application status tracking.
 
 ---
 
@@ -26,34 +26,6 @@ The project supports company onboarding, job posting, student applications, appl
 * Application status tracking
 * Application status history
 * Job search and filtering
-
-### End-to-End Status Tracking
-
-* Application status tracking
-* Status history persistence
-* Previous status tracking
-* Status change timestamps
-* Status change reason
-* Status change actor tracking
-* Application status API
-* Interview information linked to application status
-* Offer information linked to application status
-
-Supported application statuses:
-
-```text
-APPLIED
-UNDER_REVIEW
-SHORTLISTED
-INTERVIEW_SCHEDULED
-INTERVIEW_COMPLETED
-SELECTED
-OFFER_GENERATED
-OFFER_SENT
-OFFER_SIGNED
-REJECTED
-WITHDRAWN
-```
 
 ### Payment Management
 
@@ -82,10 +54,26 @@ WITHDRAWN
 * Candidate eligibility validation
 * Duplicate offer prevention
 * E-sign provider selection
+* E-sign provider validation
+* Offer signing
+* Duplicate signing prevention
 * Offer persistence
 * Offer status tracking
 * SHA-256 offer integrity verification
+* Tamper detection
 * Public offer verification
+
+### Trust Layer
+
+* Mock eSign integration
+* Valid eSign provider validation
+* Signed offer verification
+* SHA-256 signature hash generation
+* Tamper-evident offer data
+* Detection of modified offer information
+* Duplicate signing protection
+* End-to-end trust-layer dry run
+* Verification of persisted offer data
 
 ### Interview Scheduling
 
@@ -97,32 +85,17 @@ WITHDRAWN
 * Interview status tracking
 * Persistent interview records
 
-### Job Description Parsing
+### End-to-End Status Tracking
 
-* Job description parsing
-* Job title extraction
-* Experience extraction
-* Location extraction
-* Skill extraction
-* Parsed job data returned through API
-
-Example parsed response:
-
-```json
-{
-  "message": "Job description parsed successfully",
-  "parsedData": {
-    "jobId": "d3cf6f4f-b30c-4d1c-b2de-b2d4bc261041",
-    "title": "Backend Developer",
-    "experience": "2 Years",
-    "location": "Bangalore",
-    "skills": [
-      "Node.js",
-      "PostgreSQL"
-    ]
-  }
-}
-```
+* Application status tracking
+* Application status history
+* Previous status tracking
+* Status change timestamp
+* Status change reason
+* Current application status
+* Interview information in application status
+* Offer information in application status
+* End-to-end application → interview → offer flow
 
 ---
 
@@ -140,6 +113,7 @@ Example parsed response:
 * Helmet
 * CORS
 * dotenv
+* SHA-256 / Node.js Crypto
 
 ---
 
@@ -174,15 +148,7 @@ Task1_P2
 │   │   └── status.routes.js
 │   │
 │   ├── validators
-│   │   ├── application.validation.js
-│   │   ├── company.validator.js
-│   │   ├── job.validation.js
-│   │   └── payment.validation.js
-│   │
 │   ├── utils
-│   │   ├── prisma.js
-│   │   └── razorpay.js
-│   │
 │   └── server.js
 │
 ├── prisma.config.ts
@@ -241,8 +207,6 @@ POST /api/company/signup
 GET  /api/company/:id
 ```
 
----
-
 ## Jobs
 
 ```text
@@ -250,8 +214,6 @@ POST /api/jobs
 GET  /api/jobs/:id
 GET  /api/jobs/search
 ```
-
----
 
 ## Applications
 
@@ -262,7 +224,7 @@ PATCH /api/applications/:applicationId/shortlist
 GET   /api/applications/:applicationId
 ```
 
-### Application Status Response
+## Application Status
 
 ```text
 GET /api/applications/:applicationId
@@ -271,36 +233,29 @@ GET /api/applications/:applicationId
 Returns:
 
 * Current application status
-* Complete status history
-* Interview records
+* Status history
+* Interviews
 * Offer details
 
-Example:
+Example flow:
 
-```json
-{
-  "applicationId": "4cc2eb6c-8167-4e31-82e5-02311e464aff",
-  "currentStatus": "SHORTLISTED",
-  "statusHistory": [
-    {
-      "status": "APPLIED",
-      "previousStatus": null,
-      "changedBy": "11111111-1111-4111-8111-111111111111",
-      "reason": "Application submitted"
-    },
-    {
-      "status": "SHORTLISTED",
-      "previousStatus": "APPLIED",
-      "changedBy": "COMPANY_ADMIN",
-      "reason": "Candidate shortlisted"
-    }
-  ],
-  "interviews": [],
-  "offer": null
-}
+```text
+APPLIED
+   ↓
+SHORTLISTED
+   ↓
+INTERVIEW_SCHEDULED
+   ↓
+INTERVIEW_COMPLETED
+   ↓
+SELECTED
+   ↓
+OFFER_GENERATED
+   ↓
+OFFER_SENT
+   ↓
+OFFER_SIGNED
 ```
-
----
 
 ## Payments
 
@@ -315,73 +270,94 @@ GET  /api/payments/reconcile
 GET  /api/payments/:id
 ```
 
----
-
 ## Revenue
 
 ```text
 GET /api/dashboard/revenue
 ```
 
----
-
 ## Offers
 
 ```text
 POST  /api/offers/generate
 PATCH /api/offers/:offerId/esign
-POST  /api/offers/:offerId/verify
+GET   /api/offers/verify/:offerId
 ```
 
----
+### Offer Trust Flow
+
+```text
+Generate Offer
+      ↓
+Select eSign Provider
+      ↓
+Validate Provider
+      ↓
+Sign Offer
+      ↓
+Generate SHA-256 Hash
+      ↓
+Persist Signature Hash
+      ↓
+Verify Offer
+      ↓
+Compare Stored Hash
+      ↓
+Authentic / Tampered
+```
+
+### Supported eSign Provider
+
+```text
+MOCK_ESIGN
+```
+
+The current implementation uses a mock eSign provider. A real provider can be integrated later.
+
+### Offer Integrity Verification
+
+The offer's important business fields are converted into a canonical representation and hashed using SHA-256.
+
+The following data is included in the integrity hash:
+
+```text
+offerNumber
+applicationId
+candidateName
+companyName
+jobTitle
+salary
+joiningDate
+expiryDate
+```
+
+Database metadata such as `createdAt` and `updatedAt` is intentionally excluded.
+
+If the offer data changes after signing, the newly generated hash will differ from the stored signature hash.
+
+Example successful verification:
+
+```json
+{
+  "verified": true,
+  "tampered": false
+}
+```
+
+Example tamper detection:
+
+```json
+{
+  "verified": false,
+  "tampered": true
+}
+```
 
 ## Interviews
 
 ```text
 POST /api/interviews/schedule
 GET  /api/interviews/:id
-```
-
-Example scheduling request:
-
-```json
-{
-  "applicationId": "4cc2eb6c-8167-4e31-82e5-02311e464aff",
-  "scheduledAt": "2026-08-15T10:00:00.000Z",
-  "duration": 60,
-  "interviewer": "TechNova Hiring Manager",
-  "meetingLink": "https://meet.google.com/test-interview"
-}
-```
-
----
-
-## Job Description Parsing
-
-The application supports parsing a job description and returning structured information.
-
-Example endpoint:
-
-```text
-GET /api/jobs/:jobId/parse
-```
-
-Example response:
-
-```json
-{
-  "message": "Job description parsed successfully",
-  "parsedData": {
-    "jobId": "d3cf6f4f-b30c-4d1c-b2de-b2d4bc261041",
-    "title": "Backend Developer",
-    "experience": "2 Years",
-    "location": "Bangalore",
-    "skills": [
-      "Node.js",
-      "PostgreSQL"
-    ]
-  }
-}
 ```
 
 ---
@@ -396,11 +372,12 @@ Example response:
 * Idempotent payment requests
 * Duplicate application prevention
 * Duplicate offer prevention
-* Offer integrity verification using SHA-256
+* Duplicate signing prevention
+* eSign provider validation
+* Offer integrity verification
+* SHA-256 tamper detection
 * Helmet security
 * CORS protection
-* Database constraints
-* Persistent status history
 
 ---
 
@@ -419,14 +396,11 @@ Offer
 Interview
 ```
 
-### ApplicationStatusHistory
+### Application Status History
 
-Tracks every important application status transition.
-
-Stored information includes:
+Each application status change can be persisted with:
 
 ```text
-id
 applicationId
 status
 previousStatus
@@ -435,47 +409,128 @@ changedBy
 reason
 ```
 
-This provides an auditable timeline of the application lifecycle.
+This provides an auditable history of the application lifecycle.
 
 ---
 
 # End-to-End Application Flow
 
 ```text
+Company
+   ↓
+Create Job
+   ↓
 Student Applies
-      ↓
-APPLIED
-      ↓
+   ↓
+Application Created
+   ↓
 Candidate Shortlisted
-      ↓
-SHORTLISTED
-      ↓
+   ↓
 Interview Scheduled
-      ↓
-INTERVIEW_SCHEDULED
-      ↓
+   ↓
 Interview Completed
-      ↓
-INTERVIEW_COMPLETED
-      ↓
+   ↓
 Candidate Selected
-      ↓
-SELECTED
-      ↓
+   ↓
 Offer Generated
-      ↓
-OFFER_GENERATED
-      ↓
-Offer Sent
-      ↓
-OFFER_SENT
-      ↓
+   ↓
+eSign Provider Selected
+   ↓
 Offer Signed
-      ↓
-OFFER_SIGNED
+   ↓
+SHA-256 Integrity Hash Generated
+   ↓
+Offer Verification
+   ↓
+Authentic / Tampered
 ```
 
-Each application status transition can be persisted in `ApplicationStatusHistory`.
+---
+
+# Task 15 — Trust Layer Integration & Dry Run
+
+Task 15 focuses on stabilizing the trust layer and proving that a signed offer can be verified end-to-end.
+
+### Implemented
+
+* eSign provider validation
+* Mock eSign provider integration
+* Offer signing
+* Duplicate signing prevention
+* SHA-256 signature generation
+* Persistent signature hash
+* Offer integrity verification
+* Tamper detection
+* Restoration and re-verification
+* End-to-end dry run using real persisted data
+
+### Verified Test Cases
+
+#### 1. Missing eSign Provider
+
+```text
+eSignProvider is required
+```
+
+#### 2. Invalid eSign Provider
+
+```text
+Invalid eSign provider
+```
+
+Allowed provider:
+
+```text
+MOCK_ESIGN
+```
+
+#### 3. Successful Signing
+
+```text
+Offer signed successfully
+```
+
+The offer receives:
+
+```text
+signed = true
+status = SIGNED
+signedAt = timestamp
+signatureHash = SHA-256 hash
+```
+
+#### 4. Duplicate Signing
+
+```text
+Offer is already signed
+```
+
+#### 5. Valid Integrity Verification
+
+```text
+verified = true
+tampered = false
+```
+
+#### 6. Tamper Detection
+
+After changing the salary of a signed offer:
+
+```text
+verified = false
+tampered = true
+```
+
+The stored hash and newly calculated hash differ.
+
+#### 7. Restored Verification
+
+After restoring the original offer data:
+
+```text
+verified = true
+tampered = false
+```
 
 ---
 
@@ -493,13 +548,14 @@ Each application status transition can be persisted in `ApplicationStatusHistory
 * **Task 10:** Revenue Dashboard
 * **Task 11:** Offer Generation & E-Sign
 * **Task 13:** Offer Verification & Interview Scheduling
-* **Task 14:** End-to-End Status Tracking & Job Description Parsing
+* **Task 14:** End-to-End Status Tracking & Parsing
+* **Task 15:** Trust Layer Integration & Dry Run
 
 ---
 
 # Future Improvements
 
-* Digital signature verification
+* Real digital signature provider integration
 * Offer PDF generation
 * Email notifications
 * Offer acceptance/rejection
@@ -509,9 +565,9 @@ Each application status transition can be persisted in `ApplicationStatusHistory
 * Razorpay webhooks
 * Structured logging
 * Monitoring and alerting
-* Advanced resume parsing
-* Resume-to-JD skill matching
-* Automated application status transitions
+* Resume parsing
+* Advanced job-description parsing
+* Production eSign provider integration
 
 ---
 
