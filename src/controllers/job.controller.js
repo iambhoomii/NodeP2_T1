@@ -1,6 +1,7 @@
 const prisma = require("../utils/prisma");
 const crypto = require("crypto");
 const { jobSchema } = require("../validators/job.validation");
+const { parseJobDescription } = require("../utils/parser");
 
 const createJob = async (req, res) => {
   try {
@@ -192,8 +193,40 @@ include: {
   }
 };
 
+const parseJob = async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await prisma.job.findUnique({
+      where: {
+        id: jobId,
+      },
+    });
+
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found",
+      });
+    }
+
+    const parsedData = parseJobDescription(job);
+
+    return res.json({
+      message: "Job description parsed successfully",
+      parsedData,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
 module.exports = {
   createJob,
   getJobById,
   searchJobs,
+  parseJob,
 };

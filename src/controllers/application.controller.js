@@ -45,7 +45,17 @@ if (!job) {
     }
 
     const application = await prisma.application.create({
-      data,
+     data,
+    });
+
+    await prisma.applicationStatusHistory.create({
+      data: {
+        applicationId: application.id,
+        status: "APPLIED",
+        previousStatus: null,
+       changedBy: data.studentId,
+      reason: "Application submitted",
+      },
     });
 
     res.status(201).json({
@@ -104,14 +114,36 @@ const shortlistApplication = async (req, res) => {
   try {
     const { applicationId } = req.params;
 
-    const application = await prisma.application.update({
-      where: {
-        id: applicationId,
-      },
-      data: {
-        status: "SHORTLISTED",
-      },
-    });
+    const existingApplication = await prisma.application.findUnique({
+  where: {
+    id: applicationId,
+  },
+});
+
+if (!existingApplication) {
+  return res.status(404).json({
+    message: "Application not found",
+  });
+}
+
+const application = await prisma.application.update({
+  where: {
+    id: applicationId,
+  },
+  data: {
+    status: "SHORTLISTED",
+  },
+});
+
+await prisma.applicationStatusHistory.create({
+  data: {
+    applicationId: application.id,
+    status: "SHORTLISTED",
+    previousStatus: existingApplication.status,
+    changedBy: "COMPANY_ADMIN",
+    reason: "Candidate shortlisted",
+  },
+});
 
     res.json({
       message: "Candidate shortlisted successfully",

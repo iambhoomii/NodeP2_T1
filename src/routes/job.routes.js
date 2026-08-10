@@ -5,6 +5,7 @@ const {
   createJob,
   getJobById,
   searchJobs,
+  parseJob,
 } = require("../controllers/job.controller");
 
 // Search jobs
@@ -15,5 +16,7 @@ router.get("/:id", getJobById);
 
 // Create a job
 router.post("/", createJob);
+
+router.get("/:jobId/parse", parseJob);
 
 module.exports = router;

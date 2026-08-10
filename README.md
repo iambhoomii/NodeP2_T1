@@ -2,7 +2,7 @@
 
 A backend marketplace application built using **Node.js, Express.js, PostgreSQL, Prisma ORM, Docker, and Razorpay Test Mode**.
 
-The project supports company onboarding, job posting, student applications, payments, revenue analytics, offer generation, e-sign selection, public offer verification, and interview scheduling.
+The project supports company onboarding, job posting, student applications, application status tracking, payments, revenue analytics, offer generation, e-sign selection, public offer verification, interview scheduling, and job description parsing.
 
 ---
 
@@ -24,7 +24,36 @@ The project supports company onboarding, job posting, student applications, paym
 * Duplicate application prevention
 * Candidate shortlisting
 * Application status tracking
+* Application status history
 * Job search and filtering
+
+### End-to-End Status Tracking
+
+* Application status tracking
+* Status history persistence
+* Previous status tracking
+* Status change timestamps
+* Status change reason
+* Status change actor tracking
+* Application status API
+* Interview information linked to application status
+* Offer information linked to application status
+
+Supported application statuses:
+
+```text
+APPLIED
+UNDER_REVIEW
+SHORTLISTED
+INTERVIEW_SCHEDULED
+INTERVIEW_COMPLETED
+SELECTED
+OFFER_GENERATED
+OFFER_SENT
+OFFER_SIGNED
+REJECTED
+WITHDRAWN
+```
 
 ### Payment Management
 
@@ -68,6 +97,33 @@ The project supports company onboarding, job posting, student applications, paym
 * Interview status tracking
 * Persistent interview records
 
+### Job Description Parsing
+
+* Job description parsing
+* Job title extraction
+* Experience extraction
+* Location extraction
+* Skill extraction
+* Parsed job data returned through API
+
+Example parsed response:
+
+```json
+{
+  "message": "Job description parsed successfully",
+  "parsedData": {
+    "jobId": "d3cf6f4f-b30c-4d1c-b2de-b2d4bc261041",
+    "title": "Backend Developer",
+    "experience": "2 Years",
+    "location": "Bangalore",
+    "skills": [
+      "Node.js",
+      "PostgreSQL"
+    ]
+  }
+}
+```
+
 ---
 
 ## Tech Stack
@@ -98,9 +154,35 @@ Task1_P2
 │
 ├── src
 │   ├── controllers
+│   │   ├── application.controller.js
+│   │   ├── company.controller.js
+│   │   ├── dashboard.controller.js
+│   │   ├── interview.controller.js
+│   │   ├── job.controller.js
+│   │   ├── offer.controller.js
+│   │   ├── payment.controller.js
+│   │   └── status.controller.js
+│   │
 │   ├── routes
+│   │   ├── application.routes.js
+│   │   ├── company.routes.js
+│   │   ├── dashboard.routes.js
+│   │   ├── interview.routes.js
+│   │   ├── job.routes.js
+│   │   ├── offer.routes.js
+│   │   ├── payment.routes.js
+│   │   └── status.routes.js
+│   │
 │   ├── validators
+│   │   ├── application.validation.js
+│   │   ├── company.validator.js
+│   │   ├── job.validation.js
+│   │   └── payment.validation.js
+│   │
 │   ├── utils
+│   │   ├── prisma.js
+│   │   └── razorpay.js
+│   │
 │   └── server.js
 │
 ├── prisma.config.ts
@@ -150,16 +232,18 @@ RAZORPAY_KEY_SECRET=your_test_secret
 
 ---
 
-## API Endpoints
+# API Endpoints
 
-### Company
+## Company
 
 ```text
 POST /api/company/signup
 GET  /api/company/:id
 ```
 
-### Jobs
+---
+
+## Jobs
 
 ```text
 POST /api/jobs
@@ -167,15 +251,58 @@ GET  /api/jobs/:id
 GET  /api/jobs/search
 ```
 
-### Applications
+---
+
+## Applications
 
 ```text
 POST  /api/applications
 GET   /api/applications/job/:jobId
 PATCH /api/applications/:applicationId/shortlist
+GET   /api/applications/:applicationId
 ```
 
-### Payments
+### Application Status Response
+
+```text
+GET /api/applications/:applicationId
+```
+
+Returns:
+
+* Current application status
+* Complete status history
+* Interview records
+* Offer details
+
+Example:
+
+```json
+{
+  "applicationId": "4cc2eb6c-8167-4e31-82e5-02311e464aff",
+  "currentStatus": "SHORTLISTED",
+  "statusHistory": [
+    {
+      "status": "APPLIED",
+      "previousStatus": null,
+      "changedBy": "11111111-1111-4111-8111-111111111111",
+      "reason": "Application submitted"
+    },
+    {
+      "status": "SHORTLISTED",
+      "previousStatus": "APPLIED",
+      "changedBy": "COMPANY_ADMIN",
+      "reason": "Candidate shortlisted"
+    }
+  ],
+  "interviews": [],
+  "offer": null
+}
+```
+
+---
+
+## Payments
 
 ```text
 POST /api/payments/create-order
@@ -188,13 +315,17 @@ GET  /api/payments/reconcile
 GET  /api/payments/:id
 ```
 
-### Revenue
+---
+
+## Revenue
 
 ```text
 GET /api/dashboard/revenue
 ```
 
-### Offers
+---
+
+## Offers
 
 ```text
 POST  /api/offers/generate
@@ -202,16 +333,60 @@ PATCH /api/offers/:offerId/esign
 POST  /api/offers/:offerId/verify
 ```
 
-### Interviews
+---
+
+## Interviews
 
 ```text
 POST /api/interviews/schedule
 GET  /api/interviews/:id
 ```
 
+Example scheduling request:
+
+```json
+{
+  "applicationId": "4cc2eb6c-8167-4e31-82e5-02311e464aff",
+  "scheduledAt": "2026-08-15T10:00:00.000Z",
+  "duration": 60,
+  "interviewer": "TechNova Hiring Manager",
+  "meetingLink": "https://meet.google.com/test-interview"
+}
+```
+
 ---
 
-## Validation & Security
+## Job Description Parsing
+
+The application supports parsing a job description and returning structured information.
+
+Example endpoint:
+
+```text
+GET /api/jobs/:jobId/parse
+```
+
+Example response:
+
+```json
+{
+  "message": "Job description parsed successfully",
+  "parsedData": {
+    "jobId": "d3cf6f4f-b30c-4d1c-b2de-b2d4bc261041",
+    "title": "Backend Developer",
+    "experience": "2 Years",
+    "location": "Bangalore",
+    "skills": [
+      "Node.js",
+      "PostgreSQL"
+    ]
+  }
+}
+```
+
+---
+
+# Validation & Security
 
 * JWT authentication
 * bcrypt password hashing
@@ -219,14 +394,17 @@ GET  /api/interviews/:id
 * UUID validation
 * Razorpay signature verification
 * Idempotent payment requests
-* Duplicate prevention
-* Offer integrity verification
+* Duplicate application prevention
+* Duplicate offer prevention
+* Offer integrity verification using SHA-256
 * Helmet security
 * CORS protection
+* Database constraints
+* Persistent status history
 
 ---
 
-## Database Models
+# Database Models
 
 ```text
 Company
@@ -235,14 +413,73 @@ CompanyKYC
 Job
 SkillThreshold
 Application
+ApplicationStatusHistory
 Payment
 Offer
 Interview
 ```
 
+### ApplicationStatusHistory
+
+Tracks every important application status transition.
+
+Stored information includes:
+
+```text
+id
+applicationId
+status
+previousStatus
+changedAt
+changedBy
+reason
+```
+
+This provides an auditable timeline of the application lifecycle.
+
 ---
 
-## Phase 2 Tasks
+# End-to-End Application Flow
+
+```text
+Student Applies
+      ↓
+APPLIED
+      ↓
+Candidate Shortlisted
+      ↓
+SHORTLISTED
+      ↓
+Interview Scheduled
+      ↓
+INTERVIEW_SCHEDULED
+      ↓
+Interview Completed
+      ↓
+INTERVIEW_COMPLETED
+      ↓
+Candidate Selected
+      ↓
+SELECTED
+      ↓
+Offer Generated
+      ↓
+OFFER_GENERATED
+      ↓
+Offer Sent
+      ↓
+OFFER_SENT
+      ↓
+Offer Signed
+      ↓
+OFFER_SIGNED
+```
+
+Each application status transition can be persisted in `ApplicationStatusHistory`.
+
+---
+
+# Phase 2 Tasks
 
 * **Task 1:** Database Design & Company Onboarding
 * **Task 2:** Job Posting
@@ -256,10 +493,11 @@ Interview
 * **Task 10:** Revenue Dashboard
 * **Task 11:** Offer Generation & E-Sign
 * **Task 13:** Offer Verification & Interview Scheduling
+* **Task 14:** End-to-End Status Tracking & Job Description Parsing
 
 ---
 
-## Future Improvements
+# Future Improvements
 
 * Digital signature verification
 * Offer PDF generation
@@ -271,6 +509,9 @@ Interview
 * Razorpay webhooks
 * Structured logging
 * Monitoring and alerting
+* Advanced resume parsing
+* Resume-to-JD skill matching
+* Automated application status transitions
 
 ---
 

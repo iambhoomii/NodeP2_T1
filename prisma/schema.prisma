@@ -25,7 +25,7 @@ model Payment {
   gateway              PaymentGateway @default(RAZORPAY)
   status               PaymentStatus  @default(PENDING)
   razorpayOrderId      String?        @unique
-  idempotencyKey String? @unique
+  idempotencyKey       String?        @unique
   razorpayPaymentId    String?
   razorpaySignature    String?
   createdAt            DateTime       @default(now())
@@ -107,20 +107,50 @@ model CompanyKYC {
   company        Company   @relation(fields: [companyId], references: [id])
 }
 
+enum ApplicationStatus {
+  APPLIED
+  UNDER_REVIEW
+  SHORTLISTED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  SELECTED
+  OFFER_GENERATED
+  OFFER_SENT
+  OFFER_SIGNED
+  REJECTED
+  WITHDRAWN
+}
+
 model Application {
-  id        String    @id @default(uuid())
-  studentId String
-  jobId     String
-  status    String    @default("APPLIED")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  student   User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  payments  Payment[]
-  offer     Offer?
-  interviews Interview[]
+  id            String                     @id @default(uuid())
+  studentId     String
+  jobId         String
+  status        ApplicationStatus          @default(APPLIED)
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
+  job           Job                        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  student       User                       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payments      Payment[]
+  offer         Offer?
+  interviews    Interview[]
+  statusHistory ApplicationStatusHistory[]
 
   @@unique([studentId, jobId])
+}
+
+model ApplicationStatusHistory {
+  id             String             @id @default(uuid())
+  applicationId  String
+  status         ApplicationStatus
+  previousStatus ApplicationStatus?
+  changedAt      DateTime           @default(now())
+  changedBy      String?
+  reason         String?
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([changedAt])
 }
 
 enum OfferStatus {
@@ -131,26 +161,26 @@ enum OfferStatus {
 }
 
 model Offer {
-  id               String      @id @default(uuid())
-  applicationId    String      @unique
-  offerNumber      String      @unique
-  candidateName    String
-  companyName      String
-  jobTitle         String
-  salary           Int
-  joiningDate      DateTime
-  expiryDate       DateTime
-  status           OfferStatus @default(GENERATED)
+  id            String      @id @default(uuid())
+  applicationId String      @unique
+  offerNumber   String      @unique
+  candidateName String
+  companyName   String
+  jobTitle      String
+  salary        Int
+  joiningDate   DateTime
+  expiryDate    DateTime
+  status        OfferStatus @default(GENERATED)
 
-  eSignProvider    String?
-  signed           Boolean     @default(false)
-  signedAt         DateTime?
-  signatureHash    String?
+  eSignProvider String?
+  signed        Boolean   @default(false)
+  signedAt      DateTime?
+  signatureHash String?
 
-  createdAt        DateTime    @default(now())
-  updatedAt        DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  application      Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
 
 enum InterviewStatus {
@@ -170,7 +200,7 @@ model Interview {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
-  application   Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([applicationId])
   @@index([scheduledAt])
