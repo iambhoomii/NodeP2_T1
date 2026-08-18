@@ -42,16 +42,22 @@ model Payment {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  name         String
-  email        String        @unique
-  password     String
-  role         String        @default("COMPANY_ADMIN")
-  companyId    String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("COMPANY_ADMIN")
+  companyId String?
+  collegeId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   applications Application[]
   company      Company?      @relation(fields: [companyId], references: [id])
+  college      College?      @relation(fields: [collegeId], references: [id])
+  collegeAdmin CollegeAdmin?
+
+  @@index([collegeId])
 }
 
 model Company {
@@ -204,4 +210,41 @@ model Interview {
 
   @@index([applicationId])
   @@index([scheduledAt])
+}
+
+enum CollegeRole {
+  COLLEGE_ADMIN
+  COLLEGE_STAFF
+  COLLEGE_VIEWER
+}
+
+model College {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  email     String   @unique
+  phone     String?
+  website   String?
+  address   String?
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  students User[]
+  admins   CollegeAdmin[]
+}
+
+model CollegeAdmin {
+  id        String      @id @default(uuid())
+  userId    String      @unique
+  collegeId String
+  role      CollegeRole @default(COLLEGE_ADMIN)
+  status    String      @default("ACTIVE")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  college College @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId])
 }

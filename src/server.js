@@ -9,6 +9,9 @@ const dashboardRoutes = require("./routes/dashboard.routes");
 const offerRoutes = require("./routes/offer.routes");
 const interviewRoutes = require("./routes/interview.routes");
 const statusRoutes = require("./routes/status.routes");
+const collegeRoutes = require("./routes/college.routes");
+const collegeAdminRoutes = require("./routes/collegeAdmin.routes");
+const reportRoutes = require("./routes/report.routes");
 
 const companyRoutes = require("./routes/company.routes");
 const app = express();
@@ -25,6 +28,9 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/applications", statusRoutes);
+app.use("/api/colleges", collegeRoutes);
+app.use("/api/college-admins", collegeAdminRoutes);
+app.use("/api/colleges", reportRoutes);
 
 app.get("/", (req, res) => {
   res.json({
