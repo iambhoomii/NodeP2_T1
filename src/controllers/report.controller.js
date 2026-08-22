@@ -4,7 +4,7 @@ const getCollegeOverview = async (req, res) => {
   try {
     const { collegeId } = req.params;
 
-    // Check whether the college exists
+    // Check if college exists
     const college = await prisma.college.findUnique({
       where: {
         id: collegeId
@@ -17,7 +17,7 @@ const getCollegeOverview = async (req, res) => {
       });
     }
 
-    // Get students belonging to this college
+    // Get all students belonging to this college
     const students = await prisma.user.findMany({
       where: {
         collegeId,
@@ -30,7 +30,7 @@ const getCollegeOverview = async (req, res) => {
 
     const studentIds = students.map((student) => student.id);
 
-    // Count applications made by college students
+    // Placement statistics
     const applications = await prisma.application.count({
       where: {
         studentId: {
@@ -39,7 +39,6 @@ const getCollegeOverview = async (req, res) => {
       }
     });
 
-    // Count applications by status
     const shortlisted = await prisma.application.count({
       where: {
         studentId: {
@@ -87,19 +86,29 @@ const getCollegeOverview = async (req, res) => {
       }
     });
 
+    // Calculate placement rate
+    const placementRate =
+      students.length > 0
+        ? Number(((selected / students.length) * 100).toFixed(2))
+        : 0;
+
     return res.status(200).json({
       college: {
         id: college.id,
         name: college.name,
         code: college.code
       },
-      students: students.length,
-      applications,
-      shortlisted,
-      selected,
-      rejected,
-      interviews,
-      offers
+
+      stats: {
+        students: students.length,
+        applications,
+        shortlisted,
+        selected,
+        rejected,
+        interviews,
+        offers,
+        placementRate
+      }
     });
   } catch (error) {
     console.error("College overview report error:", error);

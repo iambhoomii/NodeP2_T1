@@ -2,7 +2,7 @@
 
 A backend marketplace application built with **Node.js, Express.js, PostgreSQL, Prisma ORM, Docker, and Razorpay Test Mode**.
 
-The API supports company onboarding, jobs, student applications, payments, offers, interviews, application tracking, and college management.
+The API supports company onboarding, jobs, student applications, payments, offers, interviews, application tracking, college management, and placement reporting.
 
 ---
 
@@ -26,6 +26,7 @@ The API supports company onboarding, jobs, student applications, payments, offer
 ## Features
 
 ### Company & Jobs
+
 - Company registration
 - JWT authentication
 - Job creation and search
@@ -33,13 +34,15 @@ The API supports company onboarding, jobs, student applications, payments, offer
 - Assessment links
 
 ### Applications
+
 - Student applications
 - Duplicate application prevention
-- Shortlisting
+- Candidate shortlisting
 - Application status tracking
-- Status history
+- Application status history
 
 ### Payments
+
 - Razorpay Test Mode
 - Payment verification
 - Capture and Apply
@@ -49,6 +52,7 @@ The API supports company onboarding, jobs, student applications, payments, offer
 - Revenue dashboard
 
 ### Offers & Trust Layer
+
 - Offer generation
 - Mock eSign integration
 - Offer signing
@@ -57,16 +61,30 @@ The API supports company onboarding, jobs, student applications, payments, offer
 - Tamper detection
 
 ### Interviews
+
 - Interview scheduling
 - Interview status tracking
 - Meeting links
 
 ### College Management
+
 - College creation
 - College admin creation
 - Student-college association
 - College application tracking
 - College overview reports
+
+### Placement Reporting
+
+- College placement statistics
+- Student count
+- Application count
+- Shortlisted candidates
+- Selected candidates
+- Rejected candidates
+- Interview count
+- Offer count
+- Placement rate calculation
 
 ---
 
@@ -129,7 +147,7 @@ RAZORPAY_KEY_ID=your_test_key
 RAZORPAY_KEY_SECRET=your_test_secret
 ```
 
-Do not commit `.env` or real credentials.
+**Do not commit `.env` or real credentials to GitHub.**
 
 ---
 
@@ -170,7 +188,7 @@ GET  /api/payments/reconcile
 GET  /api/payments/:id
 ```
 
-### Revenue
+### Revenue Dashboard
 
 ```text
 GET /api/dashboard/revenue
@@ -203,16 +221,37 @@ POST /api/colleges
 GET /api/colleges/:collegeId/reports/overview
 ```
 
-The college overview report provides:
+The college overview report returns:
 
-```text
-Students
-Applications
-Shortlisted
-Selected
-Rejected
-Interviews
-Offers
+- Students
+- Applications
+- Shortlisted candidates
+- Selected candidates
+- Rejected candidates
+- Interviews
+- Offers
+- Placement rate
+
+Example response:
+
+```json
+{
+  "college": {
+    "id": "college-id",
+    "name": "ACS College of Engineering",
+    "code": "ACSCE"
+  },
+  "stats": {
+    "students": 1,
+    "applications": 1,
+    "shortlisted": 0,
+    "selected": 0,
+    "rejected": 0,
+    "interviews": 0,
+    "offers": 0,
+    "placementRate": 0
+  }
+}
 ```
 
 ---
@@ -241,7 +280,7 @@ Offer Verification
 
 ---
 
-## College Flow
+## College Placement Flow
 
 ```text
 Create College
@@ -254,8 +293,25 @@ Students Apply
       ↓
 Track Applications
       ↓
-College Overview Report
+Generate Placement Report
 ```
+
+---
+
+## Validation & Security
+
+- JWT authentication
+- bcrypt password hashing
+- Zod request validation
+- UUID validation
+- Razorpay payment verification
+- Duplicate application prevention
+- Duplicate offer prevention
+- Duplicate signing prevention
+- SHA-256 offer integrity verification
+- Tamper detection
+- Helmet security
+- CORS protection
 
 ---
 
@@ -276,6 +332,7 @@ College Overview Report
 - **Task 14:** End-to-End Status Tracking
 - **Task 15:** Trust Layer Integration & Dry Run
 - **Task 16:** College Management & Reporting
+- **Task 17:** Placement Dashboards & Reporting APIs
 
 ---
 
